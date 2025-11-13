@@ -1,0 +1,166 @@
+/*****************************************/
+/*           Laboratory Work #4          */
+/*            The basics of AI           */
+/*           Main Program File           */
+/*     Developer: Sokolov Egor, 543M     */
+/*          Version: 04.11.2025          */
+/*****************************************/
+
+#include <iostream>
+#include <string>
+#include <random>
+#include "Situation.h"
+#include "EnumCellType.h"
+#include "AiSolver.h"
+
+/**
+ * @brief Target evaluation function for board position.
+ *
+ * @param situation Situation to evaluate.
+ */
+int64_t evaluateScore(const Situation& situation) {
+    int64_t score = 0;
+    if (!situation.isWhiteMove()) {
+        score += situation.countBlackInitial() - situation.countBlack();
+        score -= situation.countWhiteInitial() - situation.countWhite();
+    } else {
+        score += situation.countWhiteInitial() - situation.countWhite();
+        score -= situation.countBlackInitial() - situation.countBlack();
+    }
+    return score;
+}
+
+/**
+ * @brief Target evaluation function for board position.
+ *
+ * @param situation Situation to evaluate.
+ */
+int64_t evaluateScoreMinimax(const Situation& situation) {
+    int64_t score = 0;
+    score += situation.countWhite();
+    score -= situation.countBlack();
+
+    if (situation.countWhite() != 0 && !situation.canAnyCheckerMove(EnumCellType::CHECKER_WHITE)) {
+        score -= 1000;
+    }
+
+    if (situation.countBlack() != 0 && !situation.canAnyCheckerMove(EnumCellType::CHECKER_BLACK)) {
+        score += 1000;
+    }
+
+    if (situation.isWhiteMove()) {
+        score -= situation.countWhite() / 2;
+    }
+    if ( situation.isWhiteMove()) {
+        score += situation.countBlack() / 2;
+    }
+
+    score += situation.countWhiteQueens() * 3;
+    score -= situation.countBlackQueens() * 3;
+    return score;
+}
+
+
+/**
+ * @brief Target evaluation function for board position.
+ *
+ * @param situation Situation to evaluate.
+ */
+bool target(const Situation& situation) {
+    if (!situation.isWhiteMove()) {
+        return (situation.countBlack() == 0);
+    } else {
+        return (situation.countWhite() == 0);
+    }
+}
+
+int main(int argc, char** argv) {
+    Situation* situation;
+    size_t minimaxDepth;
+
+    std::cout <<"/*****************************************/\n"
+                "/*            The basics of AI           */\n"           
+                "/*       Laboratory Works #4 and #5      */\n"
+                "/*     Minimax and Alpha-beta pruning    */\n"
+                "/*                -------                */\n"
+                "/*     Developer: Sokolov Egor, 543M     */\n"
+                "/*          Version: 13.11.2025          */\n"
+                "/*****************************************/\n" << std::endl;
+
+    if (argc < 2) {
+        situation = new Situation();
+    } else {
+        EnumCellType checkerField[Situation::MAX_HEIGHT][Situation::MAX_WIDTH] = {};
+
+        size_t fieldWidth;
+        size_t fieldHeight;
+
+        std::cin >> minimaxDepth;
+        std::cin >> fieldHeight;
+        std::cin >> fieldWidth;
+
+        char tempCell;
+        for (size_t i = 0; i < std::min(fieldHeight, (size_t)Situation::MAX_HEIGHT); i++) {
+            for (size_t j = 0; j < std::min(fieldWidth, (size_t)Situation::MAX_WIDTH); j++) {
+                std::cin >> tempCell;
+                switch (tempCell) {
+                    case 'w':
+                        checkerField[i][j] = EnumCellType::CHECKER_WHITE;
+                        break;
+                    case 'W':
+                        checkerField[i][j] = EnumCellType::CHECKER_WHITE_QUEEN;
+                        break;
+                    case 'b':
+                        checkerField[i][j] = EnumCellType::CHECKER_BLACK;
+                        break;
+                    case 'B':
+                        checkerField[i][j] = EnumCellType::CHECKER_BLACK_QUEEN;
+                        break;
+                    case '-':     
+                    default:
+                        checkerField[i][j] = EnumCellType::CELL;
+                        break;
+                }
+            }
+        }
+        situation = new Situation(checkerField, fieldWidth, fieldHeight);
+    }
+
+
+    std::cout << "Max depth for min-max tree = ";
+    std::cin >> minimaxDepth;
+    std::cout << std::endl;
+
+    std::cout << "Initial situation:" << std::endl;
+    situation->printField();
+
+    //std::vector<Situation> foundPath = AiSolver::solveDFS(*situation, target, dfsMaxDepth);
+    //std::vector<Situation> foundPath = AiSolver::solveDFSWithScoreFunc(*situation, target, dfsMaxDepth, evaluateScore);
+    std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMiniMax);
+
+    if (foundPath.size() == 0) {
+        std::cout << "No possible moves!\n";
+        return 0;
+    }
+    int64_t currentStep = 1;
+    while (currentStep < foundPath.size()) {
+        std::cout << "\nStep " << currentStep << ": "
+                  << (currentStep % 2 != 0 ? "White" : "Black") << " moves\n";
+
+        *situation = foundPath[currentStep];
+        currentStep++;
+
+        situation->updateQueens();
+        situation->printField();
+
+    };
+
+    EnumGameCurrentStatus gameEndStatus = situation->currentGameStatus();
+    std::cout << "\nThe end of the game: "
+              << (gameEndStatus == EnumGameCurrentStatus::WHITE_VICTORY ? "White wins!" :
+                  gameEndStatus == EnumGameCurrentStatus::BLACK_VICTORY ? "Black wins!" :
+                  "Draw!") << "\n";
+    delete situation;
+    return 0;
+}
