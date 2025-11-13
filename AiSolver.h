@@ -157,7 +157,6 @@ public:
         return foundPath;
     }
 
-
     /**
      * @brief Finds a sequence of moves using mininax method
      */
@@ -189,9 +188,44 @@ public:
         return foundPath;
     }
 
-    static std::vector<Situation> solveMinimaxAlphaBeta(Situation start, Target target, int64_t maxDepth,
+
+    /**
+     * @brief Finds a sequence of moves using mininax method
+     */
+    static std::vector<Situation> solveAlphaBetaOptimized(Situation& start, Target target, int64_t maxDepth,
+                                                        EvaluateScore parEvaluateScoreFunc) {
+        std::vector<Situation> foundPath{start};
+        TreeMinimax<Situation>* tree = new TreeMinimax{ start };
+        bool parIsMin = false;
+        while (1) {
+            auto newPartOfPath = tree->solveAlphaBetaOptimized(parIsMin, maxDepth - 1, parEvaluateScoreFunc);
+
+            if (newPartOfPath.size() == 0) {
+                break;
+            }
+#ifdef DEBUG
+            std::cout << "DEBUG!\n";
+            newPartOfPath[0].printField();
+            std::cout << "\n\n\n";
+#endif
+
+            foundPath.push_back(newPartOfPath[0]);
+            parIsMin = !parIsMin;
+            delete tree;
+            tree = new TreeMinimax(foundPath[foundPath.size() - 1]);
+        }
+        delete tree;
+        return foundPath;
+    }
+
+    static std::vector<Situation> solveMinimaxAlphaBeta(Situation& start, Target target, int64_t maxDepth,
         EvaluateScore parEvaluateScoreFunc) {
         return solveMinimax(start, target, maxDepth, parEvaluateScoreFunc, true);
+    }
+
+    static std::vector<Situation> solveMinimaxAlphaBetaOptimized(Situation& start, Target target, int64_t maxDepth,
+        EvaluateScore parEvaluateScoreFunc) {
+        return solveAlphaBetaOptimized(start, target, maxDepth, parEvaluateScoreFunc);
     }
 };
 

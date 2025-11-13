@@ -57,7 +57,7 @@ int64_t evaluateScoreMinimax(const Situation& situation) {
 
     score += situation.countWhiteQueens() * 3;
     score -= situation.countBlackQueens() * 3;
-    return score;
+    return score + std::rand() % 5 - 2;
 }
 
 
@@ -136,8 +136,9 @@ int main(int argc, char** argv) {
 
     //std::vector<Situation> foundPath = AiSolver::solveDFS(*situation, target, dfsMaxDepth);
     //std::vector<Situation> foundPath = AiSolver::solveDFSWithScoreFunc(*situation, target, dfsMaxDepth, evaluateScore);
-    std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
-    // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMiniMax);
+    // std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
 
     if (foundPath.size() == 0) {
         std::cout << "No possible moves!\n";
