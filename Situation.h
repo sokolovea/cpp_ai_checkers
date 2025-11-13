@@ -94,7 +94,7 @@ private:
     int64_t currentChecherNumber_[2] = {0, 0};
 
     /**
-     * The best situations vector for DFS with evaluate score function 
+     * The best situations vector for depthSearch with evaluate score function 
      */
     std::vector<Situation>* bestSituations_ = nullptr;
 

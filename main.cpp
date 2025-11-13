@@ -32,20 +32,28 @@ int64_t evaluateScore(const Situation& situation) {
 
 /**
  * @brief Target evaluation function for board position.
+ * Positive = better for WHITE (MAX), Negative = better for BLACK (MIN)
  *
  * @param situation Situation to evaluate.
  */
 int64_t evaluateScoreMinimax(const Situation& situation) {
     int64_t score = 0;
-    score += situation.countWhite();
-    score -= situation.countBlack();
+    
+    score += situation.countBlackInitial() - situation.countBlack();
+    score -= situation.countWhiteInitial() - situation.countWhite();
+    
+    score += situation.countWhiteQueens() * 2;
+    score -= situation.countBlackQueens() * 2;
 
-    if (situation.countWhite() != 0 && !situation.canAnyCheckerMove(EnumCellType::CHECKER_WHITE)) {
-        score -= 1000;
-    }
 
-    if (situation.countBlack() != 0 && !situation.canAnyCheckerMove(EnumCellType::CHECKER_BLACK)) {
-        score += 1000;
+    if (!situation.isWhiteMove()) {
+        if (situation.countWhite() != 0 && !situation.canAnyCheckerMove(EnumCellType::CHECKER_WHITE)) {
+            return -1000;
+        }
+    } else {
+        if (situation.countBlack() != 0 && !situation.canAnyCheckerMove(EnumCellType::CHECKER_BLACK)) {
+            return 1000;
+        }
     }
 
     if (situation.isWhiteMove()) {
@@ -54,10 +62,8 @@ int64_t evaluateScoreMinimax(const Situation& situation) {
     if ( situation.isWhiteMove()) {
         score += situation.countBlack() / 2;
     }
-
-    score += situation.countWhiteQueens() * 3;
-    score -= situation.countBlackQueens() * 3;
-    return score + std::rand() % 5 - 2;
+    
+    return score;
 }
 
 
@@ -129,16 +135,20 @@ int main(int argc, char** argv) {
 
     std::cout << "Max depth for min-max tree = ";
     std::cin >> minimaxDepth;
+    if (minimaxDepth <= 0) {
+        std::cout << "Depth must be > 0!" << std::endl;
+        return 1;
+    }
     std::cout << std::endl;
 
     std::cout << "Initial situation:" << std::endl;
     situation->printField();
 
-    //std::vector<Situation> foundPath = AiSolver::solveDFS(*situation, target, dfsMaxDepth);
-    //std::vector<Situation> foundPath = AiSolver::solveDFSWithScoreFunc(*situation, target, dfsMaxDepth, evaluateScore);
-    // std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    //std::vector<Situation> foundPath = AiSolver::solvedepthSearch(*situation, target, depthSearchMaxDepth);
+    // std::vector<Situation> foundPath = AiSolver::solvedepthSearchWithScoreFunc(*situation, target, depthSearchMaxDepth, evaluateScore);
+    std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
     // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
-    std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
 
     if (foundPath.size() == 0) {
         std::cout << "No possible moves!\n";

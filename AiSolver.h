@@ -22,7 +22,7 @@ typedef bool (*Target)(const Situation&);
 typedef int64_t (*EvaluateScore)(const Situation&);
 
 /**
- * @brief AI solver for finding a sequence of moves using DFS.
+ * @brief AI solver for finding a sequence of moves using depthSearch.
  */
 class AiSolver {
 private:
@@ -32,9 +32,9 @@ private:
     explicit AiSolver() {}
 
     /**
-     * @brief Recursively explores possible moves using DFS.
+     * @brief Recursively explores possible moves using depthSearch.
      */
-    static void dfsRecursive(
+    static void depthSearchRecursive(
         Situation& currentSituation,
         Target targetFunc,
         int64_t depth,
@@ -76,7 +76,7 @@ private:
             }
 
             tempPath.push_back(nextSituation);
-            dfsRecursive(nextSituation, targetFunc, depth - 1, tempPath, foundPath, evaluateScoreFunc);
+            depthSearchRecursive(nextSituation, targetFunc, depth - 1, tempPath, foundPath, evaluateScoreFunc);
             tempPath.pop_back();
 
             if (!foundPath.empty()) return;
@@ -84,9 +84,9 @@ private:
     }
 
     /**
-     * @brief Recursively explores possible moves using BFS.
+     * @brief Recursively explores possible moves using breadthSearch.
      */
-    static void bfsMinimaxRecursive(
+    static void breadthSearchMinimaxRecursive(
         Situation& currentSituation,
         Target targetFunc,
         int64_t depth,
@@ -128,7 +128,7 @@ private:
             }
 
             tempPath.push_back(nextSituation);
-            dfsRecursive(nextSituation, targetFunc, depth - 1, tempPath, foundPath, evaluateScoreFunc);
+            depthSearchRecursive(nextSituation, targetFunc, depth - 1, tempPath, foundPath, evaluateScoreFunc);
             tempPath.pop_back();
 
             if (!foundPath.empty()) return;
@@ -137,23 +137,23 @@ private:
 
 public:
     /**
-     * @brief Finds a sequence of moves using DFS.
+     * @brief Finds a sequence of moves using depthSearch.
      */
-    static std::vector<Situation> solveDFS(Situation start, Target target, int64_t maxDepth) {
+    static std::vector<Situation> solvedepthSearch(Situation start, Target target, int64_t maxDepth) {
         std::vector<Situation> tempPath{start};
         std::vector<Situation> foundPath;
-        dfsRecursive(start, target, maxDepth, tempPath, foundPath);
+        depthSearchRecursive(start, target, maxDepth, tempPath, foundPath);
         return foundPath;
     }
 
     /**
-     * @brief Finds a sequence of moves using DFS with function evaluates best situation by score
+     * @brief Finds a sequence of moves using depthSearch with function evaluates best situation by score
      */
-    static std::vector<Situation> solveDFSWithScoreFunc(Situation start, Target target, int64_t maxDepth,
+    static std::vector<Situation> solvedepthSearchWithScoreFunc(Situation start, Target target, int64_t maxDepth,
                                                         EvaluateScore evaluateScore) {
         std::vector<Situation> tempPath{start};
         std::vector<Situation> foundPath;
-        dfsRecursive(start, target, maxDepth, tempPath, foundPath, evaluateScore);
+        depthSearchRecursive(start, target, maxDepth, tempPath, foundPath, evaluateScore);
         return foundPath;
     }
 
