@@ -1,7 +1,6 @@
 #include <vector>
 #include <cinttypes>
 #include <algorithm>
-#include <climits>
 
 /**
  * Evaluates the score of situation and helps to find the best next step.
@@ -25,10 +24,13 @@ class TreeMinimax final {
     // Finds score for data_ by minimax algorithm
     void findMinimaxScore(bool parIsMin);
 
-    // Finds score for data_ by minimax algorithm
+    // Finds score for data_ by alpha-beta prune algorithm
     void findMinimaxScoreAlphaBeta(bool parIsMin, int64_t parAlpha, int64_t parBeta);
-public:
 
+    // Finds score for data_ by alpha-beta prune algorithm with optimizations (without full bush generation)
+    void findMinimaxScoreAlphaBetaOptimized(bool parIsMin, int64_t parAlpha, int64_t parBeta, int64_t parDepth, EvaluateScore parEvaluateScore);
+
+public:
     /**
     * @brief Generates Tree with selected root value and it's parent
     * @param parRoot - selected root
@@ -53,6 +55,12 @@ public:
      */
     std::vector<T> solveMinimax(bool parIsMin, bool parIsAplhaBeta = false);
 
+    /**
+     * @brief Solves alpha-beta prune algorithm and returns recommended path with situations
+     * @param parIsMin - is minimazing for this leaf (of maximazing else)
+     */
+    std::vector<T> solveAlphaBetaOptimized(bool parIsMin, int64_t parDepth, EvaluateScore parEvaluateScore);
+
     const T& getData() const {
         return data_;
     }
@@ -63,7 +71,7 @@ template<typename T>
 void TreeMinimax<T>::findMinimaxScore(bool parIsMin)
 {
     if (children_.size() != 0) {
-        int64_t calculatedScore = parIsMin ? INT_MAX : INT_MIN;
+        int64_t calculatedScore = parIsMin ? std::numeric_limits<int64_t>::max() : std::numeric_limits<int64_t>::min();
         for (auto& each : children_) {
             each.findMinimaxScore(!parIsMin);
             calculatedScore = parIsMin ? std::min(calculatedScore, each.score_) : std::max(calculatedScore, each.score_);
@@ -71,6 +79,43 @@ void TreeMinimax<T>::findMinimaxScore(bool parIsMin)
         score_ = calculatedScore;
     }
 }
+
+template<typename T>
+void TreeMinimax<T>::findMinimaxScoreAlphaBetaOptimized(bool parIsMin, int64_t parAlpha, int64_t parBeta,
+                                                        int64_t parDepth, EvaluateScore parEvaluateScore) {
+    if (parDepth == 0) {
+        score_ = parEvaluateScore(this->data_);
+    } else {
+        size_t situationsCount = data_.possibleMovesCount();
+        if (situationsCount >= 1) {
+            children_.reserve(situationsCount);
+            int64_t bestScore = parIsMin ? std::numeric_limits<int64_t>::max() : std::numeric_limits<int64_t>::min();
+            for (size_t i = 0; i < situationsCount; i++) {
+                children_.push_back(data_.generateNextSituation());
+
+                auto& child = children_[children_.size() - 1];
+                child.findMinimaxScoreAlphaBetaOptimized(!parIsMin, parAlpha, parBeta, parDepth - 1, parEvaluateScore);
+
+                if (parIsMin) {
+                    bestScore = std::min(bestScore, child.score_);
+                    parBeta = std::min(parBeta, bestScore);
+                }
+                else {
+                    bestScore = std::max(bestScore, child.score_);
+                    parAlpha = std::max(parAlpha, bestScore);
+                }
+
+                if (parAlpha >= parBeta) {
+                    break;
+                }
+            }
+            score_ = bestScore;
+        } else {
+            score_ = parEvaluateScore(this->data_);
+        }
+    }
+}
+
 
 template<typename T>
 void TreeMinimax<T>::findMinimaxScoreAlphaBeta(bool parIsMin, int64_t parAlpha, int64_t parBeta) {
@@ -136,7 +181,7 @@ void TreeMinimax<T>::generateTreeWithDepth(size_t parDepth, EvaluateScore parEva
 template<typename T>
 std::vector<T> TreeMinimax<T>::solveMinimax(bool parIsMin, bool parIsAlphaBeta) {
     if (parIsAlphaBeta) {
-        findMinimaxScoreAlphaBeta(parIsMin, INT_MIN, INT_MAX);
+        findMinimaxScoreAlphaBeta(parIsMin, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
     } else {
         findMinimaxScore(parIsMin);
     }
@@ -153,3 +198,28 @@ std::vector<T> TreeMinimax<T>::solveMinimax(bool parIsMin, bool parIsAlphaBeta) 
     }
     return path;
 }
+
+
+/**
+* @brief Solves minimax
+* @param parIsMin - is minimazing (maximazing else)
+* @param parIsAlphaBeta - is alpha-beta pruning optimizations used
+*/
+template<typename T>
+std::vector<T> TreeMinimax<T>::solveAlphaBetaOptimized(bool parIsMin, int64_t parDepth, EvaluateScore parEvaluateScore){
+    findMinimaxScoreAlphaBetaOptimized(parIsMin, std::numeric_limits<int64_t>::min(),
+                    std::numeric_limits<int64_t>::max(), parDepth, parEvaluateScore);
+    std::vector<T> path = {};
+    auto nextLevelChildren = &children_;
+    while (nextLevelChildren != nullptr && nextLevelChildren->size() != 0) {
+        for (auto& each : *nextLevelChildren) {
+            if (each.score_ == score_) {
+                path.push_back(each.data_);
+                nextLevelChildren = &(each.children_);
+                break;
+            }
+        }
+    }
+    return path;
+}
+
