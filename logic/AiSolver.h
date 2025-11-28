@@ -163,27 +163,10 @@ public:
     static std::vector<Situation> solveMinimax(Situation start, Target target, int64_t maxDepth,
                                                         EvaluateScore parEvaluateScoreFunc,
                                                                 bool parIsAlphaBeta = false) {
-        std::vector<Situation> foundPath{start};
         TreeMinimax<Situation>* tree = new TreeMinimax{ start };
         bool parIsMin = false;
-        while (1) {
-            tree->generateTreeWithDepth(maxDepth, parEvaluateScoreFunc);
-            auto newPartOfPath = tree->solveMinimax(parIsMin, parIsAlphaBeta);
-
-            if (newPartOfPath.size() == 0) {
-                break;
-            }
-#ifdef DEBUG
-            std::cout << "DEBUG!\n";
-            newPartOfPath[0].printField();
-            std::cout << "\n\n\n";
-#endif
-
-            foundPath.push_back(newPartOfPath[0]);
-            parIsMin = !parIsMin;
-            delete tree;
-            tree = new TreeMinimax(foundPath[foundPath.size() - 1]);
-        }
+        tree->generateTreeWithDepth(maxDepth, parEvaluateScoreFunc);
+        auto foundPath = tree->solveMinimax(parIsMin, parIsAlphaBeta);
         delete tree;
         return foundPath;
     }
@@ -194,26 +177,9 @@ public:
      */
     static std::vector<Situation> solveAlphaBetaOptimized(Situation& start, Target target, int64_t maxDepth,
                                                         EvaluateScore parEvaluateScoreFunc) {
-        std::vector<Situation> foundPath{start};
         TreeMinimax<Situation>* tree = new TreeMinimax{ start };
         bool parIsMin = false;
-        while (1) {
-            auto newPartOfPath = tree->solveAlphaBetaOptimized(parIsMin, maxDepth - 1, parEvaluateScoreFunc);
-
-            if (newPartOfPath.size() == 0) {
-                break;
-            }
-#ifdef DEBUG
-            std::cout << "DEBUG!\n";
-            newPartOfPath[0].printField();
-            std::cout << "\n\n\n";
-#endif
-
-            foundPath.push_back(newPartOfPath[0]);
-            parIsMin = !parIsMin;
-            delete tree;
-            tree = new TreeMinimax(foundPath[foundPath.size() - 1]);
-        }
+        auto foundPath = tree->solveAlphaBetaOptimized(parIsMin, maxDepth - 1, parEvaluateScoreFunc);
         delete tree;
         return foundPath;
     }

@@ -9,9 +9,9 @@
 #include <iostream>
 #include <string>
 #include <random>
-#include "Situation.h"
-#include "EnumCellType.h"
-#include "AiSolver.h"
+#include "logic/Situation.h"
+#include "logic/EnumCellType.h"
+#include "logic/AiSolver.h"
 
 /**
  * @brief Target evaluation function for board position.
@@ -144,30 +144,38 @@ int main(int argc, char** argv) {
     std::cout << "Initial situation:" << std::endl;
     situation->printField();
 
-    //std::vector<Situation> foundPath = AiSolver::solvedepthSearch(*situation, target, depthSearchMaxDepth);
-    // std::vector<Situation> foundPath = AiSolver::solvedepthSearchWithScoreFunc(*situation, target, depthSearchMaxDepth, evaluateScore);
-    std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    // std::vector<Situation> foundPath = AiSolver::solvedepthSearch(*situation, target, 500 /* depthSearchMaxDepth */);
+    // std::vector<Situation> foundPath = AiSolver::solvedepthSearchWithScoreFunc(*situation, target, 100, evaluateScore);
+    // std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
     // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
-    // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
 
     if (foundPath.size() == 0) {
         std::cout << "No possible moves!\n";
         return 0;
     }
     int64_t currentStep = 1;
-    while (currentStep < foundPath.size()) {
+    EnumGameCurrentStatus gameEndStatus = situation->currentGameStatus();
+    while (situation->currentGameStatus() == EnumGameCurrentStatus::PLAYING) {
         std::cout << "\nStep " << currentStep << ": "
                   << (currentStep % 2 != 0 ? "White" : "Black") << " moves\n";
 
-        *situation = foundPath[currentStep];
+        *situation = foundPath[0];
         currentStep++;
 
         situation->updateQueens();
         situation->printField();
 
+        if (currentStep % 2 == 0) {
+            foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+        } else {
+            foundPath = AiSolver::solvedepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
+            if (foundPath.size() != 0) {
+                foundPath.erase(foundPath.begin());
+            }
+        }
+        gameEndStatus = situation->currentGameStatus();
     };
-
-    EnumGameCurrentStatus gameEndStatus = situation->currentGameStatus();
     std::cout << "\nThe end of the game: "
               << (gameEndStatus == EnumGameCurrentStatus::WHITE_VICTORY ? "White wins!" :
                   gameEndStatus == EnumGameCurrentStatus::BLACK_VICTORY ? "Black wins!" :
