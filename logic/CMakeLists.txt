@@ -5,16 +5,16 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
-    Situation.cpp
+    situation.cpp
 )
 
 set(HEADERS
-    Situation.h
-    Cell.h
-    Coordinate.h
-    EnumGameCurrentStatus.h
-    AiSolver.h
-    Tree.h
+    situation.h
+    cell.h
+    coordinate.h
+    enum_game_current_status.h
+    ai_solver.h
+    tree.h
 )
 
 add_library(logic ${SOURCES})
