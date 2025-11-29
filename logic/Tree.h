@@ -5,10 +5,12 @@
 /**
  * Evaluates the score of situation and helps to find the best next step.
  */
-typedef int64_t(*EvaluateScore)(const Situation&);
 
 template <typename T>
 class TreeMinimax final {
+    // Evaluate score function
+    using EvaluateScore = int64_t(*)(const T&);
+
     // Situation
     T data_;
 
@@ -59,7 +61,8 @@ public:
      * @brief Solves alpha-beta prune algorithm and returns recommended path with situations
      * @param parIsMin - is minimazing for this leaf (of maximazing else)
      */
-    std::vector<T> solveAlphaBetaOptimized(bool parIsMin, int64_t parDepth, EvaluateScore parEvaluateScore);
+    std::vector<T> solveAlphaBetaOptimized(bool parIsMin, int64_t parDepth,
+                                           EvaluateScore parEvaluateScore);
 
     const T& getData() const {
         return data_;

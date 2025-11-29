@@ -22,14 +22,14 @@
 class Situation;
 
 /**
+ * Target function that evaluates the situation and returns current score of player.
+ */
+typedef bool (*Target)(const Situation&);
+
+/**
  * Evaluates the score of situation and helps to find the best next step.
  */
 typedef int64_t (*EvaluateScore)(const Situation&);
-
-/**
- * Evaluates target evaluation function for situation (is winner?).
- */
-typedef bool(*Target)(const Situation&);
 
 /**
  * @brief Checker player enum
@@ -155,7 +155,7 @@ public:
      *
      * @return EnumGameCurrentStatus The current status of the game.
      */
-    [[nodiscard]] EnumGameCurrentStatus currentGameStatus() const;
+    EnumGameCurrentStatus currentGameStatus() const;
 
     /**
      * @brief Checks if any checker of the specified type can make a move.
@@ -163,7 +163,7 @@ public:
      * @param checkerType The type of checker to check.
      * @return true if at least one checker can move, false otherwise.
      */
-    [[nodiscard]] bool canAnyCheckerMove(EnumCellType checkerType) const;
+    bool canAnyCheckerMove(EnumCellType checkerType) const;
 
     /**
      * @brief Updates checker pieces to queen status when they reach the opposite end.

@@ -1,25 +1,17 @@
 /*****************************************/
 /*           Laboratory Work #4          */
 /*            The basics of AI           */
-/*               AiSolver class          */
+/*             AiSolver class            */
 /*     Developer: Sokolov Egor, 543M     */
-/*          Version: 04.11.2025          */
+/*          Version: 29.11.2025          */
 /*****************************************/
+
+#pragma once
 
 #include <vector>
 #include <algorithm>
 #include "Tree.h"
 #include "Situation.h"
-
-/**
- * Target function that evaluates the situation and returns current score of player.
- */
-typedef bool (*Target)(const Situation&);
-
-/**
- * Evaluates the score of situation and helps to find the best next step.
- */
-typedef int64_t (*EvaluateScore)(const Situation&);
 
 /**
  * @brief AI solver for finding a sequence of moves using depthSearch.

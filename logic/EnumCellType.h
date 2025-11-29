@@ -9,10 +9,12 @@
 #ifndef CHECKERS_ENUMCELLTYPE_H
 #define CHECKERS_ENUMCELLTYPE_H
 
+#include <inttypes.h>
+
 /**
  * @brief Types of cells and checkers on the game board.
  */
-enum class EnumCellType {
+enum class EnumCellType : uint8_t {
     /**< Empty cell. */
     CELL,
     /**< White checker piece. */
