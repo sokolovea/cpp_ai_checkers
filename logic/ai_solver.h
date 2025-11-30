@@ -189,6 +189,17 @@ public:
         EvaluateScore parEvaluateScoreFunc) {
         return solveAlphaBetaOptimized(start, target, maxDepth, parEvaluateScoreFunc);
     }
+
+#if 0
+    static std::vector<Situation> solveManConsole(const Situation& start) {
+        char letterStart, letterEnd;
+        int8_t numberStart, numberEnd;
+        Coordinate parFirst, parSecond;
+        std::cin >> letterStart >> numberStart >> letterStart >> numberEnd;
+        parFirst.set_row
+        Situation nextSituation = start.canCapture()
+    }
+#endif
 };
 
 

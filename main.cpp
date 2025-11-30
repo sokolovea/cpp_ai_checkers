@@ -160,6 +160,9 @@ int main(int argc, char** argv) {
         std::cout << "\nStep " << currentStep << ": "
                   << (currentStep % 2 != 0 ? "White" : "Black") << " moves\n";
 
+        if (foundPath.size() == 0) {
+            break;
+        }
         delete situation;
         situation = new Situation(foundPath[0]);
         currentStep++;
@@ -167,14 +170,14 @@ int main(int argc, char** argv) {
         situation->updateQueens();
         situation->printField();
 
-        // if (currentStep % 2 == 0) {
-            // foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
-        // } else {
+        if (currentStep % 2 == 0) {
+            foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+        } else {
              foundPath = AiSolver::solveDepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
             if (foundPath.size() != 0) {
                 foundPath.erase(foundPath.begin());
             }
-        // }
+        }
         gameEndStatus = situation->currentGameStatus();
     };
     std::cout << "\nThe end of the game: "
