@@ -84,8 +84,8 @@ namespace CellFunc {
      * @return true if both are checkers of different colors, false otherwise.
      */
     inline bool areDifferentColorsCheckers(EnumCellType parCellTypeFirst, EnumCellType parCellTypeSecond) {
-        return isChecker(parCellTypeFirst) && isChecker(parCellTypeSecond) && (isWhite(parCellTypeFirst) && isBlack(parCellTypeSecond) ||
-            isBlack(parCellTypeFirst) && isWhite(parCellTypeSecond));
+        return isChecker(parCellTypeFirst) && isChecker(parCellTypeSecond) && ((isWhite(parCellTypeFirst) && isBlack(parCellTypeSecond)) ||
+            (isBlack(parCellTypeFirst) && isWhite(parCellTypeSecond)));
     }
 
     /**

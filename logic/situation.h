@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 #include "cell.h"
 #include "coordinate.h"
 #include "enum_cell_type.h"
@@ -96,7 +97,7 @@ private:
     /**
      * The best situations vector for depthSearch with evaluate score function 
      */
-    std::vector<Situation>* bestSituations_ = nullptr;
+    std::unique_ptr<std::vector<Situation>> bestSituations_;
 
 private:
 
@@ -138,12 +139,27 @@ public:
     /**
      * @brief Copies all the fields except _bestSituations (installing to nullptr)
      */
-    Situation(const Situation& other);
+    Situation(const Situation& other) noexcept;
 
     /**
-     * @brief Frees dynamically allocated fields
+     * @brief Copy Assignment Operator (except _bestSituations (installing to nullptr))
      */
-    ~Situation();
+    Situation& operator=(const Situation&) noexcept;
+
+    /**
+     * @brief Move constuctor
+     */
+    Situation(Situation&&) noexcept;
+
+    /**
+     * @brief Move Assignment Operator 
+     */
+    Situation& operator=(Situation&&) noexcept;
+
+    /**
+     * @brief Default destructor
+     */
+    ~Situation() noexcept = default;
 
     /**
      * @brief Prints the current state of the game field to the console.

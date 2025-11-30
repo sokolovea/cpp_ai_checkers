@@ -51,8 +51,8 @@ private:
         }
 
         int64_t movesCount = currentSituation.possibleMovesCount();
+        Situation nextSituation(false);
         for (int64_t i = 0; i < movesCount; i++) {
-            Situation nextSituation(false);
             if (evaluateScoreFunc == nullptr) {
                 nextSituation = currentSituation.generateNextSituation();
             } else {
@@ -69,8 +69,12 @@ private:
 
             tempPath.push_back(nextSituation);
             depthSearchRecursive(nextSituation, targetFunc, depth - 1, tempPath, foundPath, evaluateScoreFunc);
+#ifdef DEBUG
+            std::cout << "DEBUG DELETE!!!\n";
+            tempPath[tempPath.size() - 1].printField();
+                std::cout << "\n\n";
+#endif
             tempPath.pop_back();
-
             if (!foundPath.empty()) return;
         }
     }
@@ -141,7 +145,7 @@ public:
     /**
      * @brief Finds a sequence of moves using depthSearch with function evaluates best situation by score
      */
-    static std::vector<Situation> solvedepthSearchWithScoreFunc(Situation start, Target target, int64_t maxDepth,
+    static std::vector<Situation> solveDepthSearchWithScoreFunc(Situation start, Target target, int64_t maxDepth,
                                                         EvaluateScore evaluateScore) {
         std::vector<Situation> tempPath{start};
         std::vector<Situation> foundPath;

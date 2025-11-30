@@ -9,9 +9,9 @@
 #include <iostream>
 #include <string>
 #include <random>
-#include "logic/Situation.h"
-#include "logic/EnumCellType.h"
-#include "logic/AiSolver.h"
+#include "logic/situation.h"
+#include "logic/enum_cell_type.h"
+#include "logic/ai_solver.h"
 
 /**
  * @brief Target evaluation function for board position.
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
     situation->printField();
 
     // std::vector<Situation> foundPath = AiSolver::solvedepthSearch(*situation, target, 500 /* depthSearchMaxDepth */);
-    // std::vector<Situation> foundPath = AiSolver::solvedepthSearchWithScoreFunc(*situation, target, 100, evaluateScore);
+    // std::vector<Situation> foundPath = AiSolver::solveDepthSearchWithScoreFunc(*situation, target, 100, evaluateScore);
     // std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
     // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
     std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
@@ -160,20 +160,21 @@ int main(int argc, char** argv) {
         std::cout << "\nStep " << currentStep << ": "
                   << (currentStep % 2 != 0 ? "White" : "Black") << " moves\n";
 
-        *situation = foundPath[0];
+        delete situation;
+        situation = new Situation(foundPath[0]);
         currentStep++;
 
         situation->updateQueens();
         situation->printField();
 
-        if (currentStep % 2 == 0) {
-            foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
-        } else {
-            foundPath = AiSolver::solvedepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
+        // if (currentStep % 2 == 0) {
+            // foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+        // } else {
+             foundPath = AiSolver::solveDepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
             if (foundPath.size() != 0) {
                 foundPath.erase(foundPath.begin());
             }
-        }
+        // }
         gameEndStatus = situation->currentGameStatus();
     };
     std::cout << "\nThe end of the game: "

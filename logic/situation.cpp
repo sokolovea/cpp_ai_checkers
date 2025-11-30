@@ -73,28 +73,45 @@ Situation::Situation(EnumCellType parField[Situation::MAX_HEIGHT][Situation::MAX
 /**
  * @brief Copies all the fields except _bestSituations (installing to nullptr)
  */
-Situation::Situation(const Situation& other):
-        width_(other.width_),
-        height_(other.height_),
-        whiteCheckersCount_(other.whiteCheckersCount_),
-        blackCheckersCount_(other.blackCheckersCount_),
-        whiteCheckersCountInitial_(other.whiteCheckersCountInitial_),
-        blackCheckersCountInitial_(other.blackCheckersCountInitial_),
-        isWhiteMove_(other.isWhiteMove_),
-        bestSituations_(nullptr),
-        currentChecherNumber_() {
+Situation::Situation(const Situation& parOtherSituation) noexcept:
+        width_(parOtherSituation.width_),
+        height_(parOtherSituation.height_),
+        whiteCheckersCount_(parOtherSituation.whiteCheckersCount_),
+        blackCheckersCount_(parOtherSituation.blackCheckersCount_),
+        whiteCheckersCountInitial_(parOtherSituation.whiteCheckersCountInitial_),
+        blackCheckersCountInitial_(parOtherSituation.blackCheckersCountInitial_),
+        isWhiteMove_(parOtherSituation.isWhiteMove_),
+        bestSituations_(nullptr) {
     for (int64_t i = 0; i < MAX_HEIGHT; ++i) {
         for (int64_t j = 0; j < MAX_WIDTH; ++j) {
-            field_[i][j] = other.field_[i][j];
+            field_[i][j] = parOtherSituation.field_[i][j];
         }
     }
+    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
+    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
 }
 
-Situation::~Situation()
+/**
+ * @brief Copy Assignment Operator
+ */
+Situation& Situation::operator=(const Situation & parOtherSituation) noexcept
 {
-    if (bestSituations_ != nullptr) {
-        delete bestSituations_;
+    width_ = parOtherSituation.width_;
+    height_ = parOtherSituation.height_;
+    whiteCheckersCount_ = parOtherSituation.whiteCheckersCount_;
+    blackCheckersCount_ = parOtherSituation.blackCheckersCount_;
+    whiteCheckersCountInitial_ = parOtherSituation.whiteCheckersCountInitial_;
+    blackCheckersCountInitial_ = parOtherSituation.blackCheckersCountInitial_;
+    isWhiteMove_ = parOtherSituation.isWhiteMove_;
+    bestSituations_ = nullptr;
+    for (int64_t i = 0; i < MAX_HEIGHT; ++i) {
+        for (int64_t j = 0; j < MAX_WIDTH; ++j) {
+            field_[i][j] = parOtherSituation.field_[i][j];
+        }
     }
+    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
+    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
+    return *this;
 }
 
 /**
@@ -178,6 +195,46 @@ bool Situation::moveChecker(Coordinate parCoordinateFrom, Coordinate parCoordina
             return true;
     }
     return false;
+}
+
+Situation::Situation(Situation && parOtherSituation) noexcept :
+        width_(parOtherSituation.width_),
+        height_(parOtherSituation.height_),
+        whiteCheckersCount_(parOtherSituation.whiteCheckersCount_),
+        blackCheckersCount_(parOtherSituation.blackCheckersCount_),
+        whiteCheckersCountInitial_(parOtherSituation.whiteCheckersCountInitial_),
+        blackCheckersCountInitial_(parOtherSituation.blackCheckersCountInitial_),
+        isWhiteMove_(parOtherSituation.isWhiteMove_)
+{
+    for (int64_t i = 0; i < MAX_HEIGHT; ++i) {
+        for (int64_t j = 0; j < MAX_WIDTH; ++j) {
+            field_[i][j] = parOtherSituation.field_[i][j];
+        }
+    }
+    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
+    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
+    bestSituations_ = std::move(parOtherSituation.bestSituations_);
+}
+
+
+Situation& Situation::operator=(Situation && parOtherSituation) noexcept
+{
+    width_ = parOtherSituation.width_;
+    height_ = parOtherSituation.height_;
+    whiteCheckersCount_ = parOtherSituation.whiteCheckersCount_;
+    blackCheckersCount_ = parOtherSituation.blackCheckersCount_;
+    whiteCheckersCountInitial_ = parOtherSituation.whiteCheckersCountInitial_;
+    blackCheckersCountInitial_ = parOtherSituation.blackCheckersCountInitial_;
+    isWhiteMove_ = parOtherSituation.isWhiteMove_;
+    for (int64_t i = 0; i < MAX_HEIGHT; ++i) {
+        for (int64_t j = 0; j < MAX_WIDTH; ++j) {
+            field_[i][j] = parOtherSituation.field_[i][j];
+        }
+    }
+    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
+    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
+    bestSituations_ = std::move(parOtherSituation.bestSituations_);
+    return *this;
 }
 
 /**
@@ -652,7 +709,7 @@ exit_loops:
 */
 Situation Situation::generateNextBestSituation(EvaluateScore parEvaluateScoreFunc) {
     if (bestSituations_ == nullptr) {
-        bestSituations_ = new std::vector<Situation>();
+        bestSituations_ = std::make_unique<std::vector<Situation>>();
         size_t situationsCount = possibleMovesCount();
         for (size_t i = 0; i < situationsCount; i++) {
             bestSituations_->push_back(generateNextSituation());
@@ -697,5 +754,4 @@ bool Situation::operator==(const Situation& other) const {
     }
     return true;
 }
-
 
