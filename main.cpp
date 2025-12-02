@@ -170,12 +170,16 @@ int main(int argc, char** argv) {
         situation->updateQueens();
         situation->printField();
 
-        if (currentStep % 2 == 0) {
+        if (currentStep % 2 == 1) {
             foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
         } else {
-             foundPath = AiSolver::solveDepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
-            if (foundPath.size() != 0) {
-                foundPath.erase(foundPath.begin());
+            while(1) {
+            //  foundPath = AiSolver::solveDepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
+                foundPath = AiSolver::solveManConsole(*situation);
+                if (foundPath.size() != 0) {
+                    break;
+                }
+                std::cout << "Wrong moving!\n\n";
             }
         }
         gameEndStatus = situation->currentGameStatus();

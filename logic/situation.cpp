@@ -238,7 +238,7 @@ Situation& Situation::operator=(Situation && parOtherSituation) noexcept
 }
 
 /**
- * @brief Prints current situation (chacker field).
+ * @brief Prints current situation (checker field).
  */
 void Situation::printField() const {
     std::cout << "    ";
@@ -700,6 +700,29 @@ exit_loops:
     nextSituation.updateQueens();
     nextSituation.isWhiteMove_ = !nextSituation.isWhiteMove_;
     return nextSituation;
+}
+
+/**
+ * @brief 
+ */
+bool Situation::applyMoveIfPossible(Coordinate parFirst, Coordinate parSecond) {
+    bool isMoveCorrect = false;
+    if (isCellValid(parFirst)) {
+        if (isWhiteMove()) {
+            isMoveCorrect = (getCell(parFirst).cellType() == EnumCellType::CHECKER_WHITE || 
+                getCell(parFirst).cellType() == EnumCellType::CHECKER_WHITE_QUEEN);
+        } else {
+            isMoveCorrect = (getCell(parFirst).cellType() == EnumCellType::CHECKER_BLACK || 
+                getCell(parFirst).cellType() == EnumCellType::CHECKER_BLACK_QUEEN);  
+        }
+    }
+    if (isMoveCorrect) {
+        isMoveCorrect = moveChecker(parFirst, parSecond);
+        if (isMoveCorrect) {
+            isWhiteMove_ = !isWhiteMove_;
+        }
+    }
+    return isMoveCorrect;
 }
 
 /**

@@ -25,7 +25,7 @@ public:
      *
      * @param parRow The row index to set.
      */
-    void set_row(int64_t parRow) {
+    void setRow(int64_t parRow) {
         row_ = parRow;
     }
 
@@ -41,7 +41,7 @@ public:
      *
      * @param parCol The column character to set.
      */
-    void set_col(int64_t parCol) {
+    void setCol(int64_t parCol) {
         _col = parCol;
     }
 

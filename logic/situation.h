@@ -298,6 +298,9 @@ public:
      */
     Situation generateNextSituation();
 
+    
+    bool applyMoveIfPossible(Coordinate parFirst, Coordinate parSecond);
+
     /**
      * @brief Generates next best stituation scored by evaluate function.
      * 

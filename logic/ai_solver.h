@@ -190,16 +190,19 @@ public:
         return solveAlphaBetaOptimized(start, target, maxDepth, parEvaluateScoreFunc);
     }
 
-#if 0
     static std::vector<Situation> solveManConsole(const Situation& start) {
+        Situation resultSituation(start);
         char letterStart, letterEnd;
-        int8_t numberStart, numberEnd;
-        Coordinate parFirst, parSecond;
-        std::cin >> letterStart >> numberStart >> letterStart >> numberEnd;
-        parFirst.set_row
-        Situation nextSituation = start.canCapture()
+        char numberStart, numberEnd;
+        std::cin >> letterStart >> numberStart >> letterEnd >> numberEnd;
+        Coordinate startCoordinate(8 - (numberStart - '0'), letterStart - 'A');
+        Coordinate endCoordinate(8 - (numberEnd - '0'), letterEnd - 'A');
+        bool isMoveCorrect = resultSituation.applyMoveIfPossible(startCoordinate, endCoordinate);
+        if (isMoveCorrect) {
+            return std::vector{resultSituation};
+        }
+        return {};
     }
-#endif
 };
 
 
