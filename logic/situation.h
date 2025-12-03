@@ -92,7 +92,7 @@ private:
     /**
      * The current cheker number array ()
      */
-    int64_t currentChecherNumber_[2] = {0, 0};
+    int64_t currentCheckerNumber_[2] = {0, 0};
 
     /**
      * The best situations vector for depthSearch with evaluate score function 

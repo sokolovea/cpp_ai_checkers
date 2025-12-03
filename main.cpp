@@ -150,15 +150,15 @@ int main(int argc, char** argv) {
     // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
     std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
 
-    if (foundPath.size() == 0) {
-        std::cout << "No possible moves!\n";
-        return 0;
-    }
+    // if (foundPath.size() == 0) {
+    //     std::cout << "No possible moves!\n";
+    //     return 0;
+    // }
     int64_t currentStep = 1;
     EnumGameCurrentStatus gameEndStatus = situation->currentGameStatus();
-    while (situation->currentGameStatus() == EnumGameCurrentStatus::PLAYING) {
+    do {
         std::cout << "\nStep " << currentStep << ": "
-                  << (currentStep % 2 != 0 ? "White" : "Black") << " moves\n";
+                  << (currentStep % 2 == 1 ? "White" : "Black") << " moves\n";
 
         if (foundPath.size() == 0) {
             break;
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
             }
         }
         gameEndStatus = situation->currentGameStatus();
-    };
+    } while (situation->currentGameStatus() == EnumGameCurrentStatus::PLAYING);
     std::cout << "\nThe end of the game: "
               << (gameEndStatus == EnumGameCurrentStatus::WHITE_VICTORY ? "White wins!" :
                   gameEndStatus == EnumGameCurrentStatus::BLACK_VICTORY ? "Black wins!" :

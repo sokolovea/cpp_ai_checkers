@@ -87,8 +87,8 @@ Situation::Situation(const Situation& parOtherSituation) noexcept:
             field_[i][j] = parOtherSituation.field_[i][j];
         }
     }
-    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
-    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
+    currentCheckerNumber_[0] = 0; //parOtherSituation.currentCheckerNumber_[0];
+    currentCheckerNumber_[1] = 0;//parOtherSituation.currentCheckerNumber_[1];
 }
 
 /**
@@ -109,8 +109,8 @@ Situation& Situation::operator=(const Situation & parOtherSituation) noexcept
             field_[i][j] = parOtherSituation.field_[i][j];
         }
     }
-    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
-    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
+    currentCheckerNumber_[0] = parOtherSituation.currentCheckerNumber_[0];
+    currentCheckerNumber_[1] = parOtherSituation.currentCheckerNumber_[1];
     return *this;
 }
 
@@ -211,8 +211,8 @@ Situation::Situation(Situation && parOtherSituation) noexcept :
             field_[i][j] = parOtherSituation.field_[i][j];
         }
     }
-    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
-    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
+    currentCheckerNumber_[0] = parOtherSituation.currentCheckerNumber_[0];
+    currentCheckerNumber_[1] = parOtherSituation.currentCheckerNumber_[1];
     bestSituations_ = std::move(parOtherSituation.bestSituations_);
 }
 
@@ -231,8 +231,8 @@ Situation& Situation::operator=(Situation && parOtherSituation) noexcept
             field_[i][j] = parOtherSituation.field_[i][j];
         }
     }
-    currentChecherNumber_[0] = parOtherSituation.currentChecherNumber_[0];
-    currentChecherNumber_[1] = parOtherSituation.currentChecherNumber_[1];
+    currentCheckerNumber_[0] = parOtherSituation.currentCheckerNumber_[0];
+    currentCheckerNumber_[1] = parOtherSituation.currentCheckerNumber_[1];
     bestSituations_ = std::move(parOtherSituation.bestSituations_);
     return *this;
 }
@@ -621,7 +621,7 @@ int64_t Situation::possibleMovesCount() const {
 
                         if (canCapture(from, to, isQueen) ||
                             (std::abs(di) == 1 && std::abs(dj) == 1 &&
-                             field_[to.row()][to.col()] == EnumCellType::CELL)) {
+                            !CellFunc::isChecker(getCell(to).cellType()))) {
                             count++;
                         }
                     }
@@ -638,7 +638,7 @@ int64_t Situation::possibleMovesCount() const {
  */
 Situation Situation::generateNextSituation() {
     std::pair<Coordinate, Coordinate> coordinatesForNextSituation;
-    int64_t& nextSituationCounter = currentChecherNumber_[isWhiteMove_ ? 0 : 1];
+    int64_t& nextSituationCounter = currentCheckerNumber_[isWhiteMove_ ? 0 : 1];
     int64_t currentSituationCounter = 0;
     bool isSituationFound = false;
 
@@ -653,9 +653,9 @@ Situation Situation::generateNextSituation() {
                 (!isWhiteMove_ && CellFunc::isBlack(type))) {
                 
                 bool isQueen = CellFunc::isQueen(type);
-                for (int di = -2; di <= 2; di++) {
-                    for (int dj = -2; dj <= 2; dj++) {
-                        if (di == 0 || dj == 0 || abs(di) != abs(dj)) continue;
+                for (int64_t di = -2; di <= 2; di++) {
+                    for (int64_t dj = -2; dj <= 2; dj++) {
+                        if (di == 0 || dj == 0 || std::abs(di) != std::abs(dj)) continue;
 
                         if (!isQueen) {
                             if (CellFunc::isWhite(type) && di > 0) continue;
@@ -666,7 +666,7 @@ Situation Situation::generateNextSituation() {
                         if (!isCellValid(to)) continue;
 
                         if (canCapture(from, to, isQueen) ||
-                            (abs(di) == 1 && abs(dj) == 1 &&
+                            (std::abs(di) == 1 && std::abs(dj) == 1 &&
                             !CellFunc::isChecker(getCell(to).cellType()))) {
                             if (currentSituationCounter == nextSituationCounter) {
                                 coordinatesForNextSituation = {from, to};
@@ -684,7 +684,7 @@ Situation Situation::generateNextSituation() {
 
 exit_loops:
     if (!isSituationFound) {
-        currentChecherNumber_[isWhiteMove_ ? 0 : 1] = 0;
+        currentCheckerNumber_[isWhiteMove_ ? 0 : 1] = 0;
         return *this;
     }
 
@@ -717,7 +717,12 @@ bool Situation::applyMoveIfPossible(Coordinate parFirst, Coordinate parSecond) {
         }
     }
     if (isMoveCorrect) {
-        isMoveCorrect = moveChecker(parFirst, parSecond);
+        bool isQueen = CellFunc::isQueen(getCell(parFirst).cellType());
+        if (canCapture(parFirst, parSecond, isQueen))
+            isMoveCorrect = capture(parFirst, parSecond);
+        else
+            isMoveCorrect = moveChecker(parFirst, parSecond);
+
         if (isMoveCorrect) {
             isWhiteMove_ = !isWhiteMove_;
         }
