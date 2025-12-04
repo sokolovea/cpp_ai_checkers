@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
     situation.cpp
+        i_solver.h
 )
 
 set(HEADERS

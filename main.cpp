@@ -55,13 +55,6 @@ int64_t evaluateScoreMinimax(const Situation& situation) {
             return 1000;
         }
     }
-
-    if (situation.isWhiteMove()) {
-        score -= situation.countWhite() / 2;
-    }
-    if ( situation.isWhiteMove()) {
-        score += situation.countBlack() / 2;
-    }
     
     return score;
 }
@@ -144,11 +137,12 @@ int main(int argc, char** argv) {
     std::cout << "Initial situation:" << std::endl;
     situation->printField();
 
-    // std::vector<Situation> foundPath = AiSolver::solvedepthSearch(*situation, target, 500 /* depthSearchMaxDepth */);
-    // std::vector<Situation> foundPath = AiSolver::solveDepthSearchWithScoreFunc(*situation, target, 100, evaluateScore);
-    // std::vector<Situation> foundPath = AiSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
-    // std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
-    std::vector<Situation> foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    std::vector<Situation> foundPath;/* = DepthSearchSolver::solveDepthSearch(*situation, target,
+                                                                           500 /* depthSearchMaxDepth ); */
+//    foundPath = DepthSearchSolver::solveDepthSearchWithScoreFunc(*situation, target, 100, evaluateScore);
+//    foundPath = DepthSearchSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
+//    foundPath = DepthSearchSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    foundPath = DepthSearchSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
 
     // if (foundPath.size() == 0) {
     //     std::cout << "No possible moves!\n";
@@ -171,11 +165,11 @@ int main(int argc, char** argv) {
         situation->printField();
 
         if (currentStep % 2 == 1) {
-            foundPath = AiSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+            foundPath = DepthSearchSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
         } else {
             while(1) {
-            //  foundPath = AiSolver::solveDepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
-                foundPath = AiSolver::solveManConsole(*situation);
+            //  foundPath = DepthSearchSolver::solveDepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
+                foundPath = DepthSearchSolver::solveManConsole(*situation);
                 if (foundPath.size() != 0) {
                     break;
                 }
