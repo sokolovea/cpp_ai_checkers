@@ -7,11 +7,14 @@
 /*****************************************/
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <random>
 #include "logic/situation.h"
 #include "logic/enum_cell_type.h"
-#include "logic/ai_solver.h"
+#include "logic/depth_search_solver.h"
+#include "minimax_solver.h"
+#include "console_solver.h"
 
 /**
  * @brief Target evaluation function for board position.
@@ -74,20 +77,21 @@ bool target(const Situation& situation) {
 }
 
 int main(int argc, char** argv) {
-    Situation* situation;
+    std::unique_ptr<Situation> situation;
     size_t minimaxDepth;
 
     std::cout <<"/*****************************************/\n"
-                "/*            The basics of AI           */\n"           
-                "/*       Laboratory Works #4 and #5      */\n"
-                "/*     Minimax and Alpha-beta pruning    */\n"
+                "/*            The basics of AI           */\n"
+                "/*       Laboratory Works #4 #5 #6       */\n"
+                "/*      Minimax; Alpha-beta pruning;     */\n"
+                "/*               Statistics              */\n"
                 "/*                -------                */\n"
                 "/*     Developer: Sokolov Egor, 543M     */\n"
                 "/*          Version: 13.11.2025          */\n"
                 "/*****************************************/\n" << std::endl;
 
     if (argc < 2) {
-        situation = new Situation();
+        situation = std::make_unique<Situation>(new Situation());
     } else {
         EnumCellType checkerField[Situation::MAX_HEIGHT][Situation::MAX_WIDTH] = {};
 
@@ -122,7 +126,8 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        situation = new Situation(checkerField, fieldWidth, fieldHeight);
+        situation = std::make_unique<Situation>(
+                new Situation(checkerField, fieldWidth, fieldHeight));
     }
 
 
@@ -137,12 +142,14 @@ int main(int argc, char** argv) {
     std::cout << "Initial situation:" << std::endl;
     situation->printField();
 
-    std::vector<Situation> foundPath;/* = DepthSearchSolver::solveDepthSearch(*situation, target,
-                                                                           500 /* depthSearchMaxDepth ); */
+    MinimaxSolver minimaxSolver(minimaxDepth, evaluateScoreMinimax, true);
+    ConsoleSolver consoleSolver;
+    std::vector<Situation> foundPath = minimaxSolver.solve(*situation, target);
+    /* = DepthSearchSolver::solveDepthSearch(*situation, target, 500, depthSearchMaxDepth ); */
 //    foundPath = DepthSearchSolver::solveDepthSearchWithScoreFunc(*situation, target, 100, evaluateScore);
 //    foundPath = DepthSearchSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
 //    foundPath = DepthSearchSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
-    foundPath = DepthSearchSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+//    foundPath = DepthSearchSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
 
     // if (foundPath.size() == 0) {
     //     std::cout << "No possible moves!\n";
@@ -154,23 +161,21 @@ int main(int argc, char** argv) {
         std::cout << "\nStep " << currentStep << ": "
                   << (currentStep % 2 == 1 ? "White" : "Black") << " moves\n";
 
-        if (foundPath.size() == 0) {
+        if (foundPath.empty()) {
             break;
         }
-        delete situation;
-        situation = new Situation(foundPath[0]);
+        situation = std::make_unique<Situation>(foundPath[0]);
         currentStep++;
 
         situation->updateQueens();
         situation->printField();
 
         if (currentStep % 2 == 1) {
-            foundPath = DepthSearchSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+            foundPath = minimaxSolver.solve(*situation, target);
         } else {
-            while(1) {
-            //  foundPath = DepthSearchSolver::solveDepthSearchWithScoreFunc(*situation, target, 200, evaluateScore);
-                foundPath = DepthSearchSolver::solveManConsole(*situation);
-                if (foundPath.size() != 0) {
+            while(situation->currentGameStatus() == EnumGameCurrentStatus::PLAYING) {
+                foundPath = consoleSolver.solve(*situation, nullptr); //TODO
+                if (!foundPath.empty()) {
                     break;
                 }
                 std::cout << "Wrong moving!\n\n";
@@ -182,6 +187,5 @@ int main(int argc, char** argv) {
               << (gameEndStatus == EnumGameCurrentStatus::WHITE_VICTORY ? "White wins!" :
                   gameEndStatus == EnumGameCurrentStatus::BLACK_VICTORY ? "Black wins!" :
                   "Draw!") << "\n";
-    delete situation;
     return 0;
 }
