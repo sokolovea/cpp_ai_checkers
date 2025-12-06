@@ -4,7 +4,7 @@
 
 class ConsoleSolver: public ISolver {
 public:
-    std::vector<Situation> solve(const Situation &parStart, Target parTargetFunc) override {
+    std::vector<Situation> solve(const Situation &parStart) override {
         Situation resultSituation(parStart);
         char letterStart, letterEnd;
         char numberStart, numberEnd;

@@ -1,7 +1,7 @@
 /*****************************************/
 /*           Laboratory Work #4          */
 /*            The basics of AI           */
-/*             DepthSearchSolver class            */
+/*        DepthSearchSolver class        */
 /*     Developer: Sokolov Egor, 543M     */
 /*          Version: 29.11.2025          */
 /*****************************************/
@@ -18,81 +18,111 @@
  * @brief AI solver for finding a sequence of moves using depthSearch.
  */
 class DepthSearchSolver : public ISolver {
+    /**
+     * Max depth for search tree
+     */
     size_t maxDepth_;
+    /**
+     * Target function that takes the situation and returns true if win or false otherwise
+     */
+    Target targetFunc_;
+    /**
+     * Evaluate function (nullptr if not required)
+     */
     EvaluateScore evaluateScoreFunc_;
-/**
- * @brief Private constructor to prevent instantiation.
- */
+
 private:
 
     /**
      * @brief Recursively explores possible moves using depthSearch.
+     * @param parCurrentSituation - root situation (checked by target func and then generate next situations if needs)
+     * @param parTargetFunc - target function (if win return true)
+     * @param parDepth - current value of depth (reverse) for recursion
+     * @param parTempPath - current path generated in recursion
+     * @param parFoundPath - win-path (if found)
+     * @param parEvaluateScoreFunc - evaluate function (helps to sort generated situations and choose the best)
      */
     static void depthSearchRecursive(
-        Situation& currentSituation,
-        Target targetFunc,
-        size_t depth,
-        std::vector<Situation>& tempPath,
-        std::vector<Situation>& foundPath,
-        EvaluateScore evaluateScoreFunc = nullptr
+            Situation &parCurrentSituation,
+            Target parTargetFunc,
+            size_t parDepth,
+            std::vector<Situation> &parTempPath,
+            std::vector<Situation> &parFoundPath,
+            EvaluateScore parEvaluateScoreFunc = nullptr
     ) {
 
-        if (!foundPath.empty()) {
+        if (!parFoundPath.empty()) {
             return;
         }
-        
-       bool isTarget = targetFunc(currentSituation);
+
+        bool isTarget = parTargetFunc(parCurrentSituation);
 
         if (isTarget) {
-            foundPath = tempPath;
+            parFoundPath = parTempPath;
             return;
         }
 
-        if (depth == 0) {
+        if (parDepth == 0) {
             return;
         }
 
-        int64_t movesCount = currentSituation.possibleMovesCount();
+        int64_t movesCount = parCurrentSituation.possibleMovesCount();
         Situation nextSituation(false);
         for (int64_t i = 0; i < movesCount; i++) {
-            if (evaluateScoreFunc == nullptr) {
-                nextSituation = currentSituation.generateNextSituation();
+            if (parEvaluateScoreFunc == nullptr) {
+                nextSituation = parCurrentSituation.generateNextSituation();
             } else {
-                nextSituation = currentSituation.generateNextBestSituation(evaluateScoreFunc);
+                nextSituation = parCurrentSituation.generateNextBestSituation(parEvaluateScoreFunc);
             }
 
-            if (nextSituation == currentSituation) { 
+            if (nextSituation == parCurrentSituation) {
                 continue;
             }
 
-            if (std::find(tempPath.begin(), tempPath.end(), nextSituation) != tempPath.end()) {
+            if (std::find(parTempPath.begin(), parTempPath.end(), nextSituation) != parTempPath.end()) {
                 continue;
             }
 
-            tempPath.push_back(nextSituation);
-            depthSearchRecursive(nextSituation, targetFunc, depth - 1, tempPath, foundPath, evaluateScoreFunc);
-            tempPath.pop_back();
-            if (!foundPath.empty()) return;
+            parTempPath.push_back(nextSituation);
+            depthSearchRecursive(nextSituation, parTargetFunc, parDepth - 1, parTempPath, parFoundPath,
+                                 parEvaluateScoreFunc);
+            parTempPath.pop_back();
+            if (!parFoundPath.empty()) return;
         }
     }
 
     /**
-     * @brief Finds a sequence of moves using depthSearch with function evaluates best situation by score
+     * @brief Finds a sequence of moves using depthSearch with function evaluates best situation by score.
+     * @param parStart - start situation
+     * @param parTargetFunc - target function (if win return true)
+     * @param parEvaluateScoreFunc - evaluate function (helps to sort generated situations and choose the best)
      */
-    static std::vector<Situation> solveDepthSearchWithScoreFunc(Situation start, Target target, size_t parMaxDepth,
-                                                                EvaluateScore evaluateScore) {
+    static std::vector<Situation>
+    solveDepthSearchWithScoreFunc(Situation parStart, Target parTargetFunc, size_t parMaxDepth,
+                                  EvaluateScore parEvaluateScoreFunc) {
         std::vector<Situation> tempPath{};
         std::vector<Situation> foundPath;
-        depthSearchRecursive(start, target, parMaxDepth, tempPath, foundPath, evaluateScore);
+        depthSearchRecursive(parStart, parTargetFunc, parMaxDepth, tempPath, foundPath, parEvaluateScoreFunc);
         return foundPath;
     }
 
 public:
+    /**
+     * @brief Constructs object to call fabric method
+     * @param parMaxDepth - max depth of DFS
+     * @param parEvaluateScoreFunc - evaluate function (helps to sort generated situations and choose the best)
+     */
+    explicit DepthSearchSolver(size_t parMaxDepth, Target parTargetFunc, EvaluateScore parEvaluateScoreFunc = nullptr) : maxDepth_(
+            parMaxDepth), targetFunc_(parTargetFunc), evaluateScoreFunc_(parEvaluateScoreFunc) {}
 
-    explicit DepthSearchSolver(size_t parMaxDepth, EvaluateScore parEvaluateScoreFunc = nullptr) : maxDepth_(parMaxDepth), evaluateScoreFunc_(parEvaluateScoreFunc) {}
-
-    std::vector<Situation> solve(const Situation& parStart, Target parTargetFunc) override {
-        return solveDepthSearchWithScoreFunc(parStart, parTargetFunc, maxDepth_, evaluateScoreFunc_);
+    /**
+     * Solve DFS (with or without evaluate function)
+     * @param parStart - start situation
+     * @param parTargetFunc - target function (if win return true)
+     * @return calculated path of situations (win in the best case)
+     */
+    std::vector<Situation> solve(const Situation &parStart) override {
+        return solveDepthSearchWithScoreFunc(parStart, targetFunc_, maxDepth_, evaluateScoreFunc_);
     }
 };
 

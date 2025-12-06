@@ -6,6 +6,6 @@
  */
 class ISolver {
 public:
-    virtual std::vector<Situation> solve(const Situation& parStart, Target parTargetFunc) = 0;
+    virtual std::vector<Situation> solve(const Situation& parStart) = 0;
     virtual ~ISolver() = default;
 };
