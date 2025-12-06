@@ -9,6 +9,7 @@ set(SOURCES
         i_solver.h
         minimax_solver.h
         console_solver.h
+        method_type_enum.h
 )
 
 set(HEADERS

@@ -15,13 +15,14 @@
 #include "logic/depth_search_solver.h"
 #include "minimax_solver.h"
 #include "console_solver.h"
+#include "method_type_enum.h"
 
 /**
  * @brief Target evaluation function for board position.
  *
  * @param situation Situation to evaluate.
  */
-int64_t evaluateScore(const Situation& situation) {
+int64_t evaluateScoreDepthSearch(const Situation& situation) {
     int64_t score = 0;
     if (!situation.isWhiteMove()) {
         score += situation.countBlackInitial() - situation.countBlack();
@@ -77,8 +78,9 @@ bool target(const Situation& situation) {
 }
 
 int main(int argc, char** argv) {
-    std::unique_ptr<Situation> situation;
-    size_t minimaxDepth;
+    std::unique_ptr<Situation> situation = std::make_unique<Situation>();
+    size_t maxTreeDepth;
+    MethodTypeEnum methodTypeEnum;
 
     std::cout <<"/*****************************************/\n"
                 "/*            The basics of AI           */\n"
@@ -87,74 +89,85 @@ int main(int argc, char** argv) {
                 "/*               Statistics              */\n"
                 "/*                -------                */\n"
                 "/*     Developer: Sokolov Egor, 543M     */\n"
-                "/*          Version: 13.11.2025          */\n"
+                "/*          Version: 06.12.2025          */\n"
                 "/*****************************************/\n" << std::endl;
 
-    if (argc < 2) {
-        situation = std::make_unique<Situation>(new Situation());
-    } else {
-        EnumCellType checkerField[Situation::MAX_HEIGHT][Situation::MAX_WIDTH] = {};
+#if 0 // if it needs custom arrangement of figures
+    EnumCellType checkerField[Situation::MAX_HEIGHT][Situation::MAX_WIDTH] = {};
 
-        size_t fieldWidth;
-        size_t fieldHeight;
+    size_t fieldWidth;
+    size_t fieldHeight;
 
-        std::cin >> minimaxDepth;
-        std::cin >> fieldHeight;
-        std::cin >> fieldWidth;
+    std::cin >> minimaxDepth;
+    std::cin >> fieldHeight;
+    std::cin >> fieldWidth;
 
-        char tempCell;
-        for (size_t i = 0; i < std::min(fieldHeight, (size_t)Situation::MAX_HEIGHT); i++) {
-            for (size_t j = 0; j < std::min(fieldWidth, (size_t)Situation::MAX_WIDTH); j++) {
-                std::cin >> tempCell;
-                switch (tempCell) {
-                    case 'w':
-                        checkerField[i][j] = EnumCellType::CHECKER_WHITE;
-                        break;
-                    case 'W':
-                        checkerField[i][j] = EnumCellType::CHECKER_WHITE_QUEEN;
-                        break;
-                    case 'b':
-                        checkerField[i][j] = EnumCellType::CHECKER_BLACK;
-                        break;
-                    case 'B':
-                        checkerField[i][j] = EnumCellType::CHECKER_BLACK_QUEEN;
-                        break;
-                    case '-':     
-                    default:
-                        checkerField[i][j] = EnumCellType::CELL;
-                        break;
-                }
+    char tempCell;
+    for (size_t i = 0; i < std::min(fieldHeight, (size_t)Situation::MAX_HEIGHT); i++) {
+        for (size_t j = 0; j < std::min(fieldWidth, (size_t)Situation::MAX_WIDTH); j++) {
+            std::cin >> tempCell;
+            switch (tempCell) {
+                case 'w':
+                    checkerField[i][j] = EnumCellType::CHECKER_WHITE;
+                    break;
+                case 'W':
+                    checkerField[i][j] = EnumCellType::CHECKER_WHITE_QUEEN;
+                    break;
+                case 'b':
+                    checkerField[i][j] = EnumCellType::CHECKER_BLACK;
+                    break;
+                case 'B':
+                    checkerField[i][j] = EnumCellType::CHECKER_BLACK_QUEEN;
+                    break;
+                case '-':
+                default:
+                    checkerField[i][j] = EnumCellType::CELL;
+                    break;
             }
         }
-        situation = std::make_unique<Situation>(
-                new Situation(checkerField, fieldWidth, fieldHeight));
     }
+    situation = std::make_unique<Situation>(
+            new Situation(checkerField, fieldWidth, fieldHeight));
+#endif
 
-
-    std::cout << "Max depth for min-max tree = ";
-    std::cin >> minimaxDepth;
-    if (minimaxDepth <= 0) {
-        std::cout << "Depth must be > 0!" << std::endl;
+    std::cout << "Input method number: " << std::endl;
+    std::cout << "1. Depth search" << std::endl;
+    std::cout << "2. Depth search with evaluation function" << std::endl;
+    std::cout << "3. Minimax" << std::endl;
+    std::cout << "4. Minimax with alpha-beta-pruning" << std::endl;
+    size_t methodNumber;
+    std::cin >> methodNumber;
+    if ( methodNumber == 0 || methodNumber > 4) {
+        std::cerr << "Wrong number of method!" << std::endl;
         return 1;
     }
-    std::cout << std::endl;
+    methodTypeEnum = static_cast<MethodTypeEnum>(methodNumber); //enum starts with 1
 
+    std::cout << "Max tree depth = ";
+    std::cin >> maxTreeDepth;
+
+    std::unique_ptr<ISolver> solver;
+    switch (methodTypeEnum) {
+        case MethodTypeEnum::DFS:
+            solver = std::make_unique<DepthSearchSolver>(maxTreeDepth);
+            break;
+        case MethodTypeEnum::DFS_WITH_EVALUATION_FUNC:
+            solver = std::make_unique<DepthSearchSolver>(maxTreeDepth, evaluateScoreDepthSearch);
+            break;
+        case MethodTypeEnum::MINIMAX:
+            solver = std::make_unique<MinimaxSolver>(maxTreeDepth, evaluateScoreMinimax, false);
+            break;
+        case MethodTypeEnum::MINIMAX_WITH_ALPHA_BETA_PRUNING:
+            solver = std::make_unique<MinimaxSolver>(maxTreeDepth, evaluateScoreMinimax, true);
+            break;
+    }
+    std::cout << std::endl;
     std::cout << "Initial situation:" << std::endl;
     situation->printField();
 
-    MinimaxSolver minimaxSolver(minimaxDepth, evaluateScoreMinimax, true);
     ConsoleSolver consoleSolver;
-    std::vector<Situation> foundPath = minimaxSolver.solve(*situation, target);
-    /* = DepthSearchSolver::solveDepthSearch(*situation, target, 500, depthSearchMaxDepth ); */
-//    foundPath = DepthSearchSolver::solveDepthSearchWithScoreFunc(*situation, target, 100, evaluateScore);
-//    foundPath = DepthSearchSolver::solveMinimax(*situation, target, minimaxDepth, evaluateScoreMinimax);
-//    foundPath = DepthSearchSolver::solveMinimaxAlphaBeta(*situation, target, minimaxDepth, evaluateScoreMinimax);
-//    foundPath = DepthSearchSolver::solveMinimaxAlphaBetaOptimized(*situation, target, minimaxDepth, evaluateScoreMinimax);
+    std::vector<Situation> foundPath = solver->solve(*situation, target);
 
-    // if (foundPath.size() == 0) {
-    //     std::cout << "No possible moves!\n";
-    //     return 0;
-    // }
     int64_t currentStep = 1;
     EnumGameCurrentStatus gameEndStatus = situation->currentGameStatus();
     do {
@@ -171,10 +184,10 @@ int main(int argc, char** argv) {
         situation->printField();
 
         if (currentStep % 2 == 1) {
-            foundPath = minimaxSolver.solve(*situation, target);
+            foundPath = solver->solve(*situation, target);
         } else {
             while(situation->currentGameStatus() == EnumGameCurrentStatus::PLAYING) {
-                foundPath = consoleSolver.solve(*situation, nullptr); //TODO
+                foundPath = consoleSolver.solve(*situation, nullptr);
                 if (!foundPath.empty()) {
                     break;
                 }
