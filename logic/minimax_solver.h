@@ -4,20 +4,42 @@
 #include "i_solver.h"
 #include "tree.h"
 
+/**
+ * @brief Implementation of Minimax algorithm with optional Alpha-Beta pruning.
+ */
 class MinimaxSolver : public ISolver {
+
     /**
-     * @brief Private constructor to prevent instantiation.
+     * @brief Maximum depth for the search tree.
      */
-private:
     size_t maxDepth_;
+
     /**
-     * Target function that takes the situation and returns true if win or false otherwise
+     * @brief Target function to check winning condition.
+     * Returns true if the given situation is a winning one.
      */
     Target targetFunc_;
+
+    /**
+     * @brief Evaluation function for scoring situations.
+     */
     EvaluateScore evaluateScoreFunc_;
+
+    /**
+     * @brief Flag indicating whether to use Alpha-Beta pruning.
+     */
     bool isAlphaBeta_;
 
 public:
+    /**
+     * @brief Constructor for MinimaxSolver.
+     * Initializes solver with specified parameters.
+     *
+     * @param parMaxDepth Maximum depth of the search tree
+     * @param parTargetFunc Function to check winning condition
+     * @param parEvaluateScoreFunc Optional evaluation function
+     * @param parIsAlphaBeta Flag to enable Alpha-Beta pruning
+     */
     explicit MinimaxSolver(size_t parMaxDepth, Target parTargetFunc, EvaluateScore parEvaluateScoreFunc = nullptr,
                            bool parIsAlphaBeta = false) : maxDepth_(parMaxDepth),
                                                           targetFunc_(parTargetFunc),
@@ -25,6 +47,13 @@ public:
                                                           isAlphaBeta_(parIsAlphaBeta) {
     }
 
+    /**
+     * @brief Main solving method.
+     * Selects and executes appropriate solving algorithm based on configuration.
+     *
+     * @param parStart Initial game situation
+     * @return Vector of situations representing the solution path
+     */
     std::vector<Situation> solve(const Situation &parStart) override {
         if (isAlphaBeta_) {
             Situation situation(parStart);
@@ -36,7 +65,15 @@ public:
     }
 
     /**
-     * @brief Finds a sequence of moves using minimax method
+     * @brief Implements classic Minimax algorithm.
+     * Constructs a search tree and finds the optimal move sequence.
+     *
+     * @param parStart Initial game situation
+     * @param parTarget Target function for winning condition
+     * @param parMaxDepth Maximum search depth
+     * @param parEvaluateScoreFunc Evaluation function
+     * @param parIsAlphaBeta Flag to enable Alpha-Beta pruning
+     * @return Vector of situations representing the solution path
      */
     static std::vector<Situation> solveMinimax(const Situation &parStart, Target parTarget, size_t parMaxDepth,
                                                EvaluateScore parEvaluateScoreFunc,
@@ -50,7 +87,14 @@ public:
     }
 
     /**
-     * @brief Finds a sequence of moves using minimax method
+     * @brief Implements Minimax algorithm with Alpha-Beta pruning.
+     * Optimized version of the algorithm with search space reduction.
+     *
+     * @param parStart Initial game situation
+     * @param parTarget Target function for winning condition
+     * @param parMaxDepth Maximum search depth
+     * @param parEvaluateScoreFunc Evaluation function
+     * @return Vector of situations representing the solution path
      */
     static std::vector<Situation> solveMinimaxAlphaBetaOptimized(Situation &parStart, Target parTarget,
                                                                  size_t parMaxDepth,
