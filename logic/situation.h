@@ -16,21 +16,6 @@
 #include "enum_game_current_status.h"
 
 /**
- * @brief Checker field with 8x8 cells
- */
-class Situation;
-
-/**
- * Target function that evaluates the situation and returns current score of player.
- */
-typedef bool (*Target)(const Situation&);
-
-/**
- * Evaluates the score of situation and helps to find the best next step.
- */
-typedef int64_t (*EvaluateScore)(const Situation&);
-
-/**
  * @brief Checker player enum
  */
 enum class CheckerPlayer {
@@ -53,6 +38,16 @@ public:
     * The maimum height of the field
     */
     static constexpr int64_t MAX_HEIGHT = 8;
+
+    /**
+     * Target function that evaluates the situation and returns current score of player.
+     */
+    using Target = bool(*)(const Situation&);
+
+    /**
+     * Evaluates the score of situation and helps to find the best next step.
+     */
+    using EvaluateScore = int64_t(*)(const Situation&);
 
 private:
     /**

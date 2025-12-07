@@ -18,12 +18,12 @@ class MinimaxSolver final : public ISolver {
      * @brief Target function to check winning condition.
      * Returns true if the given situation is a winning one.
      */
-    Target targetFunc_;
+    Situation::Target targetFunc_;
 
     /**
      * @brief Evaluation function for scoring situations.
      */
-    EvaluateScore evaluateScoreFunc_;
+    Situation::EvaluateScore evaluateScoreFunc_;
 
     /**
      * @brief Flag indicating whether to use Alpha-Beta pruning.
@@ -40,7 +40,8 @@ public:
      * @param parEvaluateScoreFunc Optional evaluation function
      * @param parIsAlphaBeta Flag to enable Alpha-Beta pruning
      */
-    explicit MinimaxSolver(size_t parMaxDepth, Target parTargetFunc, EvaluateScore parEvaluateScoreFunc = nullptr,
+    explicit MinimaxSolver(size_t parMaxDepth, Situation::Target parTargetFunc,
+        Situation::EvaluateScore parEvaluateScoreFunc = nullptr,
                            bool parIsAlphaBeta = false);
 
     /**
@@ -63,8 +64,8 @@ public:
      * @param parIsAlphaBeta Flag to enable Alpha-Beta pruning
      * @return Vector of situations representing the solution path
      */
-    static std::vector<Situation> solveMinimax(const Situation &parStart, Target parTarget, size_t parMaxDepth,
-                                               EvaluateScore parEvaluateScoreFunc,
+    static std::vector<Situation> solveMinimax(const Situation &parStart, Situation::Target parTarget,
+                                                size_t parMaxDepth, Situation::EvaluateScore parEvaluateScoreFunc,
                                                bool parIsAlphaBeta = false);
 
     /**
@@ -77,7 +78,7 @@ public:
      * @param parEvaluateScoreFunc Evaluation function
      * @return Vector of situations representing the solution path
      */
-    static std::vector<Situation> solveMinimaxAlphaBetaOptimized(Situation &parStart, Target parTarget,
+    static std::vector<Situation> solveMinimaxAlphaBetaOptimized(Situation &parStart, Situation::Target parTarget,
                                                                  size_t parMaxDepth,
-                                                                 EvaluateScore parEvaluateScoreFunc);
+                                                                 Situation::EvaluateScore parEvaluateScoreFunc);
 };

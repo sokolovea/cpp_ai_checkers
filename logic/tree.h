@@ -34,7 +34,7 @@ class TreeMinimax final {
 
     // Finds score for data_ by alpha-beta prune algorithm with optimizations (without full bush generation)
     void findMinimaxScoreAlphaBetaOptimized(bool parIsMin, int64_t parAlpha, int64_t parBeta, size_t parDepth,
-                                            Target parTarget, EvaluateScore parEvaluateScore);
+                                            Situation::Target parTarget, EvaluateScore parEvaluateScore);
 
 public:
     /**
@@ -50,7 +50,7 @@ public:
     * @param parEvaluateScore - evaluate function (evaluates score of situation)
     * @param parTarget - situation is target or not (win - true, loose/draw/playing - false)
     */
-    void generateTreeWithDepth(size_t parDepth, EvaluateScore parEvaluateScore, Target parTarget);
+    void generateTreeWithDepth(size_t parDepth, EvaluateScore parEvaluateScore, Situation::Target parTarget);
 
     /**
      * @brief Solves minimax tree and returns recommended path with situations
@@ -67,7 +67,7 @@ public:
      * @param parEvaluateScore - evaluate situation function
      */
     std::vector<T>
-    solveAlphaBetaOptimized(bool parIsMin, size_t parDepth, Target parTarget, EvaluateScore parEvaluateScore);
+    solveAlphaBetaOptimized(bool parIsMin, size_t parDepth, Situation::Target parTarget, EvaluateScore parEvaluateScore);
 
     /**
      * @brief Get internal data value.
@@ -113,7 +113,7 @@ void TreeMinimax<T>::findMinimaxScore(bool parIsMin) {
 
 template<typename T>
 void TreeMinimax<T>::findMinimaxScoreAlphaBetaOptimized(bool parIsMin, int64_t parAlpha, int64_t parBeta,
-                                                        size_t parDepth, Target parTarget, EvaluateScore parEvaluateScore) {
+                                                        size_t parDepth, Situation::Target parTarget, EvaluateScore parEvaluateScore) {
     if (parDepth == 0 || parTarget(this->data_)) {
         score_ = parEvaluateScore(this->data_);
     } else {
@@ -179,7 +179,7 @@ void TreeMinimax<T>::findMinimaxScoreAlphaBeta(bool parIsMin, int64_t parAlpha, 
 * @param parTarget - situation is target or not (win - true, loose/draw/playing - false)
 */
 template<typename T>
-void TreeMinimax<T>::generateTreeWithDepth(size_t parDepth, EvaluateScore parEvaluateScore, Target parTarget) {
+void TreeMinimax<T>::generateTreeWithDepth(size_t parDepth, EvaluateScore parEvaluateScore, Situation::Target parTarget) {
     if (parDepth == 0 || parTarget(data_)) {
         score_ = parEvaluateScore(data_);
         return;
@@ -235,7 +235,7 @@ std::vector<T> TreeMinimax<T>::solveMinimax(bool parIsMin, bool parIsAlphaBeta) 
 * @param parIsAlphaBeta - is alpha-beta pruning optimizations used
 */
 template<typename T>
-std::vector<T> TreeMinimax<T>::solveAlphaBetaOptimized(bool parIsMin, size_t parDepth, Target parTarget,
+std::vector<T> TreeMinimax<T>::solveAlphaBetaOptimized(bool parIsMin, size_t parDepth, Situation::Target parTarget,
                                                        EvaluateScore parEvaluateScore) {
     findMinimaxScoreAlphaBetaOptimized(parIsMin, std::numeric_limits<int64_t>::min(),
                                        std::numeric_limits<int64_t>::max(), parDepth, parTarget, parEvaluateScore);

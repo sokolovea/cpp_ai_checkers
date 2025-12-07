@@ -10,7 +10,8 @@
  * @param parEvaluateScoreFunc Optional evaluation function
  * @param parIsAlphaBeta Flag to enable Alpha-Beta pruning
  */
-MinimaxSolver::MinimaxSolver(size_t parMaxDepth, Target parTargetFunc, EvaluateScore parEvaluateScoreFunc,
+MinimaxSolver::MinimaxSolver(size_t parMaxDepth, Situation::Target parTargetFunc,
+    Situation::EvaluateScore parEvaluateScoreFunc,
     bool parIsAlphaBeta): maxDepth_(parMaxDepth),
                           targetFunc_(parTargetFunc),
                           evaluateScoreFunc_(parEvaluateScoreFunc),
@@ -45,8 +46,8 @@ std::vector<Situation> MinimaxSolver::solve(const Situation &parStart) {
  * @param parIsAlphaBeta Flag to enable Alpha-Beta pruning
  * @return Vector of situations representing the solution path
  */
-std::vector<Situation> MinimaxSolver::solveMinimax(const Situation &parStart, Target parTarget,
-    size_t parMaxDepth, EvaluateScore parEvaluateScoreFunc, bool parIsAlphaBeta) {
+std::vector<Situation> MinimaxSolver::solveMinimax(const Situation &parStart, Situation::Target parTarget,
+    size_t parMaxDepth, Situation::EvaluateScore parEvaluateScoreFunc, bool parIsAlphaBeta) {
     auto *tree = new TreeMinimax{parStart};
     bool parIsMin = false;
     tree->generateTreeWithDepth(parMaxDepth, parEvaluateScoreFunc, parTarget);
@@ -65,8 +66,8 @@ std::vector<Situation> MinimaxSolver::solveMinimax(const Situation &parStart, Ta
  * @param parEvaluateScoreFunc Evaluation function
  * @return Vector of situations representing the solution path
  */
-std::vector<Situation> MinimaxSolver::solveMinimaxAlphaBetaOptimized(Situation &parStart, Target parTarget,
-    size_t parMaxDepth, EvaluateScore parEvaluateScoreFunc) {
+std::vector<Situation> MinimaxSolver::solveMinimaxAlphaBetaOptimized(Situation &parStart, Situation::Target parTarget,
+    size_t parMaxDepth, Situation::EvaluateScore parEvaluateScoreFunc) {
     auto *tree = new TreeMinimax{parStart};
     bool parIsMin = false;
     auto foundPath = tree->solveAlphaBetaOptimized(parIsMin, parMaxDepth, parTarget, parEvaluateScoreFunc);
