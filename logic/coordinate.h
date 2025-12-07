@@ -1,11 +1,3 @@
-/*****************************************/
-/*           Laboratory Work #4          */
-/*            The basics of AI           */
-/*       Coordinate implementation       */
-/*      Developer: Sokolov Egor, 543M    */
-/*           Version: 04.11.2025         */
-/*****************************************/
-
 #pragma once
 
 /**

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "situation.h"
+
 /**
  * @brief Interface for Solver (computer, man console, etc)
  */

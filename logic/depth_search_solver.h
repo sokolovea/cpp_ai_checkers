@@ -1,11 +1,3 @@
-/*****************************************/
-/*           Laboratory Work #4          */
-/*            The basics of AI           */
-/*        DepthSearchSolver class        */
-/*     Developer: Sokolov Egor, 543M     */
-/*          Version: 29.11.2025          */
-/*****************************************/
-
 #pragma once
 
 #include <vector>

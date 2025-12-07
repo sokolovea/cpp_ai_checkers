@@ -118,7 +118,7 @@ int main() {
         case MethodTypeEnum::MINIMAX:
             solver = std::make_unique<MinimaxSolver>(maxTreeDepth, targetFunc, evaluateScoreMinimaxFunc, false);
             break;
-        case MethodTypeEnum::MINIMAX_WITH_ALPHA_BETA_PRUNING:
+        case MethodTypeEnum::ALPHA_BETA_PRUNING:
             solver = std::make_unique<MinimaxSolver>(maxTreeDepth, targetFunc, evaluateScoreMinimaxFunc, true);
             break;
     }

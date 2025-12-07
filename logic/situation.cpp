@@ -1,11 +1,3 @@
-/*****************************************/
-/*           Laboratory Work #4          */
-/*            The basics of AI           */
-/*       CheckerField implementation     */
-/*      Developer: Sokolov Egor, 543M    */
-/*           Version: 04.11.2025         */
-/*****************************************/
-
 #include <algorithm>
 #include <iostream>
 #include "situation.h"

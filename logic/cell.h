@@ -1,11 +1,3 @@
-/*****************************************/
-/*           Laboratory Work #4          */
-/*            The basics of AI           */
-/*               Cell class              */
-/*     Developer: Sokolov Egor, 543M     */
-/*          Version: 04.11.2025          */
-/*****************************************/
-
 #pragma once
 
 #include "enum_cell_type.h"
