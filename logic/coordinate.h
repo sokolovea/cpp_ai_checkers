@@ -16,7 +16,7 @@ public:
     /**
      * @brief Gets the row coordinate.
      */
-    int64_t row() const {
+    [[nodiscard]] int64_t row() const {
         return row_;
     }
 
@@ -32,7 +32,7 @@ public:
     /**
      * @brief Gets the column coordinate.
      */
-    char col() const {
+    [[nodiscard]] int64_t col() const {
         return _col;
     }
 

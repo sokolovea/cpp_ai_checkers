@@ -6,7 +6,7 @@
  * @brief Console-based solver for manual move input.
  * Allows users to input moves directly through the console interface.
  */
-class ConsoleSolver: public ISolver {
+class ConsoleSolver final : public ISolver {
 public:
     /**
      * @brief Gets next situation by user input.

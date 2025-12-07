@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <inttypes.h>
+#include <cinttypes>
 
 /**
  * @brief Types of cells and checkers on the game board.

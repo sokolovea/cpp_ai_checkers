@@ -1,5 +1,5 @@
 /*****************************************/
-/*           Laboratory Work #4          */
+/*           Laboratory Work #6          */
 /*            The basics of AI           */
 /*           Main Program File           */
 /*     Developer: Sokolov Egor, 543M     */
@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <memory>
-#include <string>
+
 #include <random>
 #include "logic/situation.h"
 #include "logic/enum_cell_type.h"
@@ -84,51 +84,12 @@ int main() {
 
     std::cout << "/*****************************************/\n"
                  "/*            The basics of AI           */\n"
-                 "/*       Laboratory Works #4 #5 #6       */\n"
-                 "/*      Minimax; Alpha-beta pruning;     */\n"
+                 "/*           Laboratory Works #6         */\n"
                  "/*               Statistics              */\n"
                  "/*                -------                */\n"
                  "/*     Developer: Sokolov Egor, 543M     */\n"
-                 "/*          Version: 06.12.2025          */\n"
+                 "/*          Version: 07.12.2025          */\n"
                  "/*****************************************/\n" << std::endl;
-
-#if 0 // if it needs custom arrangement of figures
-    EnumCellType checkerField[Situation::MAX_HEIGHT][Situation::MAX_WIDTH] = {};
-
-    size_t fieldWidth;
-    size_t fieldHeight;
-
-    std::cin >> minimaxDepth;
-    std::cin >> fieldHeight;
-    std::cin >> fieldWidth;
-
-    char tempCell;
-    for (size_t i = 0; i < std::min(fieldHeight, (size_t) Situation::MAX_HEIGHT); i++) {
-        for (size_t j = 0; j < std::min(fieldWidth, (size_t) Situation::MAX_WIDTH); j++) {
-            std::cin >> tempCell;
-            switch (tempCell) {
-                case 'w':
-                    checkerField[i][j] = EnumCellType::CHECKER_WHITE;
-                    break;
-                case 'W':
-                    checkerField[i][j] = EnumCellType::CHECKER_WHITE_QUEEN;
-                    break;
-                case 'b':
-                    checkerField[i][j] = EnumCellType::CHECKER_BLACK;
-                    break;
-                case 'B':
-                    checkerField[i][j] = EnumCellType::CHECKER_BLACK_QUEEN;
-                    break;
-                case '-':
-                default:
-                    checkerField[i][j] = EnumCellType::CELL;
-                    break;
-            }
-        }
-    }
-    situation = std::make_unique<Situation>(
-        new Situation(checkerField, fieldWidth, fieldHeight));
-#endif
 
     std::cout << "Input method number: " << std::endl;
     std::cout << "1. Depth search" << std::endl;

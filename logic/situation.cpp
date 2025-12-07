@@ -7,15 +7,13 @@
 /*****************************************/
 
 #include <algorithm>
+#include <iostream>
 #include "situation.h"
-#include "coordinate.h"
-#include "enum_game_current_status.h"
 
 /**
- * @brief Initializes the checkers field with starting positions.
+ * @brief Constructs an empty or standard initial checkers position.
  *
- * Sets up black checkers in the top three rows and white checkers
- * in the bottom three rows, with empty cells in between.
+ * @param parShouldInitializeSituation If true (default), places black checkers on rows 0–2 and white on rows 5–7.
  */
 Situation::Situation(bool parShouldInitializeSituation) {
     if (parShouldInitializeSituation) {
@@ -42,27 +40,29 @@ Situation::Situation(bool parShouldInitializeSituation) {
 }
 
 /**
- * @brief Constructor that initializes the game field with starting positions.
+ * @brief Constructs a situation from a raw field array with custom dimensions.
+ *
+ * @param parField  Object containing the initial board state.
+ * @param parWidth  Desired board width.
+ * @param parHeight Desired board height.
  */
-Situation::Situation(EnumCellType parField[Situation::MAX_HEIGHT][Situation::MAX_WIDTH], size_t parWidth, size_t parHeight)
-{
-    width_ = limitFieldSize(parWidth);
-    height_ = limitFieldSize(parHeight);
+Situation::Situation(EnumCellType parField[MAX_HEIGHT][MAX_WIDTH], size_t parWidth, size_t parHeight) {
+    width_ = limitFieldSize(static_cast<int64_t>(parWidth));
+    height_ = limitFieldSize(static_cast<int64_t>(parHeight));
 
     for (int64_t i = 0; i < height_; i++) {
         for (int64_t j = 0; j < width_; j++) {
-            switch (parField[i][j])
-            {
-            case EnumCellType::CHECKER_BLACK:
-            case EnumCellType::CHECKER_BLACK_QUEEN:
-                blackCheckersCount_++;
-                break;
-            case EnumCellType::CHECKER_WHITE:
-            case EnumCellType::CHECKER_WHITE_QUEEN:
-                whiteCheckersCount_++;
-                break;
-            default:
-                break;
+            switch (parField[i][j]) {
+                case EnumCellType::CHECKER_BLACK:
+                case EnumCellType::CHECKER_BLACK_QUEEN:
+                    blackCheckersCount_++;
+                    break;
+                case EnumCellType::CHECKER_WHITE:
+                case EnumCellType::CHECKER_WHITE_QUEEN:
+                    whiteCheckersCount_++;
+                    break;
+                default:
+                    break;
             }
             field_[i][j] = parField[i][j];
         }
@@ -71,31 +71,41 @@ Situation::Situation(EnumCellType parField[Situation::MAX_HEIGHT][Situation::MAX
 }
 
 /**
- * @brief Copies all the fields except _bestSituations (installing to nullptr)
+ * @brief Copy constructor. Performs deep copy of the board; bestSituations_ is set to nullptr.
+ *
+ * @param parOtherSituation Situation to copy from.
  */
-Situation::Situation(const Situation& parOtherSituation) noexcept:
-        width_(parOtherSituation.width_),
-        height_(parOtherSituation.height_),
-        whiteCheckersCount_(parOtherSituation.whiteCheckersCount_),
-        blackCheckersCount_(parOtherSituation.blackCheckersCount_),
-        whiteCheckersCountInitial_(parOtherSituation.whiteCheckersCountInitial_),
-        blackCheckersCountInitial_(parOtherSituation.blackCheckersCountInitial_),
-        isWhiteMove_(parOtherSituation.isWhiteMove_),
-        bestSituations_(nullptr) {
+Situation::Situation(const Situation &parOtherSituation) noexcept : width_(parOtherSituation.width_),
+                                                                    height_(parOtherSituation.height_),
+                                                                    whiteCheckersCount_(
+                                                                        parOtherSituation.whiteCheckersCount_),
+                                                                    blackCheckersCount_(
+                                                                        parOtherSituation.blackCheckersCount_),
+                                                                    whiteCheckersCountInitial_(
+                                                                        parOtherSituation.whiteCheckersCountInitial_),
+                                                                    blackCheckersCountInitial_(
+                                                                        parOtherSituation.blackCheckersCountInitial_),
+                                                                    isWhiteMove_(parOtherSituation.isWhiteMove_),
+                                                                    bestSituations_(nullptr) {
     for (int64_t i = 0; i < MAX_HEIGHT; ++i) {
         for (int64_t j = 0; j < MAX_WIDTH; ++j) {
             field_[i][j] = parOtherSituation.field_[i][j];
         }
     }
-    currentCheckerNumber_[0] = 0; //parOtherSituation.currentCheckerNumber_[0];
-    currentCheckerNumber_[1] = 0;//parOtherSituation.currentCheckerNumber_[1];
+    currentCheckerNumber_[0] = 0;
+    currentCheckerNumber_[1] = 0;
 }
 
 /**
- * @brief Copy Assignment Operator
+ * @brief Copy assignment operator. Deep-copies the board; bestSituations_ is cleared.
+ *
+ * @param parOtherSituation Situation to copy from.
+ * @return Reference to this object.
  */
-Situation& Situation::operator=(const Situation & parOtherSituation) noexcept
-{
+Situation &Situation::operator=(const Situation &parOtherSituation) noexcept {
+    if (parOtherSituation == *this) {
+        return *this;
+    }
     width_ = parOtherSituation.width_;
     height_ = parOtherSituation.height_;
     whiteCheckersCount_ = parOtherSituation.whiteCheckersCount_;
@@ -122,7 +132,7 @@ Situation& Situation::operator=(const Situation & parOtherSituation) noexcept
  */
 bool Situation::isCellValid(Coordinate parCoordinate) const {
     return (parCoordinate.row() < height_ && parCoordinate.col() < width_) &&
-        (parCoordinate.row() >= 0 && parCoordinate.col() >= 0);
+           (parCoordinate.row() >= 0 && parCoordinate.col() >= 0);
 }
 
 /**
@@ -136,7 +146,7 @@ Cell Situation::getCell(Coordinate parCoordinate) const {
         return {};
     }
     return {
-        field_[parCoordinate.row()][parCoordinate.col()]
+        Cell{field_[parCoordinate.row()][parCoordinate.col()]}
     };
 }
 
@@ -153,7 +163,7 @@ void Situation::setCell(Coordinate parCoordinate, EnumCellType parValue) {
 }
 
 /**
- * @brief Limits the field size (width or height) before setting. 
+ * @brief Limits the field size (width or height) before setting.
  */
 int64_t Situation::limitFieldSize(int64_t parSize) {
     if (parSize > 8 || parSize <= 0) {
@@ -190,22 +200,30 @@ void Situation::removeChecker(Coordinate parCoordinate) {
 bool Situation::moveChecker(Coordinate parCoordinateFrom, Coordinate parCoordinateTo) {
     if (isCellValid(parCoordinateFrom) && isCellValid(parCoordinateTo) &&
         !CellFunc::isChecker(getCell(parCoordinateTo).cellType())) {
-            setCell(parCoordinateTo, getCell(parCoordinateFrom).cellType());
-            setCell(parCoordinateFrom, EnumCellType::CELL);
-            return true;
+        setCell(parCoordinateTo, getCell(parCoordinateFrom).cellType());
+        setCell(parCoordinateFrom, EnumCellType::CELL);
+        return true;
     }
     return false;
 }
 
-Situation::Situation(Situation && parOtherSituation) noexcept :
-        width_(parOtherSituation.width_),
-        height_(parOtherSituation.height_),
-        whiteCheckersCount_(parOtherSituation.whiteCheckersCount_),
-        blackCheckersCount_(parOtherSituation.blackCheckersCount_),
-        whiteCheckersCountInitial_(parOtherSituation.whiteCheckersCountInitial_),
-        blackCheckersCountInitial_(parOtherSituation.blackCheckersCountInitial_),
-        isWhiteMove_(parOtherSituation.isWhiteMove_)
-{
+/**
+ * @brief Copy assignment operator. Deep-copies the board; bestSituations_ is cleared.
+ *
+ * @param parOtherSituation Situation to copy from.
+ * @return Reference to this object.
+ */
+Situation::Situation(Situation &&parOtherSituation) noexcept : width_(parOtherSituation.width_),
+                                                               height_(parOtherSituation.height_),
+                                                               whiteCheckersCount_(
+                                                                   parOtherSituation.whiteCheckersCount_),
+                                                               blackCheckersCount_(
+                                                                   parOtherSituation.blackCheckersCount_),
+                                                               whiteCheckersCountInitial_(
+                                                                   parOtherSituation.whiteCheckersCountInitial_),
+                                                               blackCheckersCountInitial_(
+                                                                   parOtherSituation.blackCheckersCountInitial_),
+                                                               isWhiteMove_(parOtherSituation.isWhiteMove_) {
     for (int64_t i = 0; i < MAX_HEIGHT; ++i) {
         for (int64_t j = 0; j < MAX_WIDTH; ++j) {
             field_[i][j] = parOtherSituation.field_[i][j];
@@ -216,9 +234,12 @@ Situation::Situation(Situation && parOtherSituation) noexcept :
     bestSituations_ = std::move(parOtherSituation.bestSituations_);
 }
 
-
-Situation& Situation::operator=(Situation && parOtherSituation) noexcept
-{
+/**
+ * @brief Copy assignment operator. Deep-copies the board; bestSituations_ is cleared.
+ * @param parOtherSituation Situation to copy from.
+ * @return Reference to this object.
+ */
+Situation &Situation::operator=(Situation &&parOtherSituation) noexcept {
     width_ = parOtherSituation.width_;
     height_ = parOtherSituation.height_;
     whiteCheckersCount_ = parOtherSituation.whiteCheckersCount_;
@@ -243,12 +264,12 @@ Situation& Situation::operator=(Situation && parOtherSituation) noexcept
 void Situation::printField() const {
     std::cout << "    ";
     for (int64_t i = 0; i < width_; i++) {
-        std::cout << (char)('A' + i) << "   "; 
+        std::cout << static_cast<char>('A' + i) << "   ";
     }
     std::cout << std::endl;
     std::cout << "  ";
     for (int64_t i = 0; i < width_; i++) {
-        std::cout << "+---"; 
+        std::cout << "+---";
     }
     std::cout << std::endl;
 
@@ -259,15 +280,15 @@ void Situation::printField() const {
         }
         std::cout << " " << (height_ - i) << "\n";
         std::cout << "  ";
-        for (int64_t i = 0; i < width_; i++) {
-            std::cout << "+---"; 
+        for (int64_t k = 0; k < width_; k++) {
+            std::cout << "+---";
         }
         std::cout << std::endl;
     }
 
     std::cout << "    ";
     for (int64_t i = 0; i < width_; i++) {
-        std::cout << (char)('A' + i) << "   "; 
+        std::cout << static_cast<char>('A' + i) << "   ";
     }
     std::cout << std::endl;
 }
@@ -369,7 +390,7 @@ bool Situation::capture(Coordinate parCoordinateFrom, Coordinate parCoordinateTo
             CellFunc::areDifferentColorsCheckers(movingChecker, field_[row][col])) {
             capturedCheckerCoord = Coordinate(row, col);
             break;
-            }
+        }
         row += stepRow;
         col += stepCol;
     }
@@ -387,7 +408,7 @@ bool Situation::capture(Coordinate parCoordinateFrom, Coordinate parCoordinateTo
         if ((CellFunc::isWhite(movingChecker) && parCoordinateTo.row() == 0) ||
             (CellFunc::isBlack(movingChecker) && parCoordinateTo.row() == height_ - 1)) {
             setCell(parCoordinateTo, CellFunc::promoteToQueen(movingChecker));
-            }
+        }
     }
     return true;
 }
@@ -433,8 +454,7 @@ int64_t Situation::countBlack() const {
  *
  * @return int64_t The number of white queens.
  */
-int64_t Situation::countWhiteQueens() const
-{
+int64_t Situation::countWhiteQueens() const {
     int64_t count = 0;
     for (size_t i = 0; i < height_; i++) {
         for (size_t j = 0; j < width_; j++) {
@@ -451,8 +471,7 @@ int64_t Situation::countWhiteQueens() const
  *
  * @return int64_t The number of black queens.
  */
-int64_t Situation::countBlackQueens() const
-{
+int64_t Situation::countBlackQueens() const {
     int64_t count = 0;
     for (size_t i = 0; i < height_; i++) {
         for (size_t j = 0; j < width_; j++) {
@@ -509,24 +528,22 @@ EnumGameCurrentStatus Situation::currentGameStatus() const {
 /**
  * @brief Checks if any checker of the specified type can move.
  *
- * @param checkerType The type of checker to check.
+ * @param parCheckerType The type of checker to check.
  * @return true if at least one checker can move, false otherwise.
  */
-bool Situation::canAnyCheckerMove(EnumCellType checkerType) const {
-    bool isWhite = CellFunc::isWhite(checkerType);
-    
+bool Situation::canAnyCheckerMove(EnumCellType parCheckerType) const {
+    bool isWhite = CellFunc::isWhite(parCheckerType);
+
     for (int64_t i = (isWhite ? height_ - 1 : 0);
          (isWhite ? i >= 0 : i < height_);
          (isWhite ? i-- : i++)) {
         for (int64_t j = 0; j < width_; j++) {
-            Coordinate from(i, j);
             EnumCellType cellType = field_[i][j];
-            
+
             if ((isWhite && CellFunc::isWhite(cellType)) ||
                 (!isWhite && CellFunc::isBlack(cellType))) {
-                
                 bool isQueen = CellFunc::isQueen(cellType);
-                
+
                 // Check all diagonal directions
                 for (int64_t di = -1; di <= 1; di += 2) {
                     for (int64_t dj = -1; dj <= 1; dj += 2) {
@@ -535,25 +552,24 @@ bool Situation::canAnyCheckerMove(EnumCellType checkerType) const {
                             if (isWhite && di > 0) continue; // White regular checkers can't move down
                             if (!isWhite && di < 0) continue; // Black regular checkers can't move up
                         }
-                        
+
                         // Check regular move (1 cell)
                         Coordinate to(i + di, j + dj);
-                        if (isCellValid(to) && 
+                        if (isCellValid(to) &&
                             field_[to.row()][to.col()] == EnumCellType::CELL) {
                             return true;
                         }
-                        
+
                         // Check capture move (2 cells)
                         Coordinate captureTo(i + 2 * di, j + 2 * dj);
-                        if (isCellValid(captureTo) && 
+                        if (isCellValid(captureTo) &&
                             field_[captureTo.row()][captureTo.col()] == EnumCellType::CELL) {
-                            
                             Coordinate middle(i + di, j + dj);
                             if (isCellValid(middle)) {
                                 EnumCellType middleCell = field_[middle.row()][middle.col()];
                                 // Check if middle cell contains opponent's checker
-                                if (middleCell != EnumCellType::CELL && 
-                                    ((isWhite && CellFunc::isBlack(middleCell)) || 
+                                if (middleCell != EnumCellType::CELL &&
+                                    ((isWhite && CellFunc::isBlack(middleCell)) ||
                                      (!isWhite && CellFunc::isWhite(middleCell)))) {
                                     return true;
                                 }
@@ -603,7 +619,6 @@ int64_t Situation::possibleMovesCount() const {
 
             if ((isWhite && CellFunc::isWhite(cellType)) ||
                 (!isWhite && CellFunc::isBlack(cellType))) {
-                
                 bool isQueen = CellFunc::isQueen(cellType);
 
                 for (int64_t di = -2; di <= 2; di++) {
@@ -621,7 +636,7 @@ int64_t Situation::possibleMovesCount() const {
 
                         if (canCapture(from, to, isQueen) ||
                             (std::abs(di) == 1 && std::abs(dj) == 1 &&
-                            !CellFunc::isChecker(getCell(to).cellType()))) {
+                             !CellFunc::isChecker(getCell(to).cellType()))) {
                             count++;
                         }
                     }
@@ -635,23 +650,24 @@ int64_t Situation::possibleMovesCount() const {
 
 /**
  * @brief Generates next situation.
+ *
+ * @return Next situation (if not possible, return *this)
  */
 Situation Situation::generateNextSituation() {
     std::pair<Coordinate, Coordinate> coordinatesForNextSituation;
-    int64_t& nextSituationCounter = currentCheckerNumber_[isWhiteMove_ ? 0 : 1];
+    int64_t &nextSituationCounter = currentCheckerNumber_[isWhiteMove_ ? 0 : 1];
     int64_t currentSituationCounter = 0;
     bool isSituationFound = false;
 
     for (int64_t i = (isWhiteMove_ ? height_ - 1 : 0);
-        (isWhiteMove_ ? i >= 0 : i < height_);
-        (isWhiteMove_ ? i-- : i++)) {
+         (isWhiteMove_ ? i >= 0 : i < height_);
+         (isWhiteMove_ ? i-- : i++)) {
         for (int64_t j = 0; j < width_; j++) {
             Coordinate from(i, j);
             auto type = getCell(from).cellType();
 
             if ((isWhiteMove_ && CellFunc::isWhite(type)) ||
                 (!isWhiteMove_ && CellFunc::isBlack(type))) {
-                
                 bool isQueen = CellFunc::isQueen(type);
                 for (int64_t di = -2; di <= 2; di++) {
                     for (int64_t dj = -2; dj <= 2; dj++) {
@@ -667,7 +683,7 @@ Situation Situation::generateNextSituation() {
 
                         if (canCapture(from, to, isQueen) ||
                             (std::abs(di) == 1 && std::abs(dj) == 1 &&
-                            !CellFunc::isChecker(getCell(to).cellType()))) {
+                             !CellFunc::isChecker(getCell(to).cellType()))) {
                             if (currentSituationCounter == nextSituationCounter) {
                                 coordinatesForNextSituation = {from, to};
                                 nextSituationCounter++;
@@ -703,17 +719,21 @@ exit_loops:
 }
 
 /**
- * @brief 
+ * @brief Applies a move if it belongs to the current player and is legal.
+ *
+ * @param parFirst  Source coordinate.
+ * @param parSecond Destination coordinate.
+ * @return true if the move was applied, false otherwise.
  */
 bool Situation::applyMoveIfPossible(Coordinate parFirst, Coordinate parSecond) {
     bool isMoveCorrect = false;
     if (isCellValid(parFirst)) {
         if (isWhiteMove()) {
-            isMoveCorrect = (getCell(parFirst).cellType() == EnumCellType::CHECKER_WHITE || 
-                getCell(parFirst).cellType() == EnumCellType::CHECKER_WHITE_QUEEN);
+            isMoveCorrect = (getCell(parFirst).cellType() == EnumCellType::CHECKER_WHITE ||
+                             getCell(parFirst).cellType() == EnumCellType::CHECKER_WHITE_QUEEN);
         } else {
-            isMoveCorrect = (getCell(parFirst).cellType() == EnumCellType::CHECKER_BLACK || 
-                getCell(parFirst).cellType() == EnumCellType::CHECKER_BLACK_QUEEN);  
+            isMoveCorrect = (getCell(parFirst).cellType() == EnumCellType::CHECKER_BLACK ||
+                             getCell(parFirst).cellType() == EnumCellType::CHECKER_BLACK_QUEEN);
         }
     }
     if (isMoveCorrect) {
@@ -731,55 +751,59 @@ bool Situation::applyMoveIfPossible(Coordinate parFirst, Coordinate parSecond) {
 }
 
 /**
- * @brief Generates next best stituation scored by evaluate function.
-* 
-* @param parEvaluateScoreFunc The evaluate function.
-*/
+ * @brief Generates next best situation scored by evaluate function.
+ *
+ * @param parEvaluateScoreFunc The evaluate function.
+ */
 Situation Situation::generateNextBestSituation(EvaluateScore parEvaluateScoreFunc) {
     if (bestSituations_ == nullptr) {
-        bestSituations_ = std::make_unique<std::vector<Situation>>();
+        bestSituations_ = std::make_unique<std::vector<Situation> >();
         size_t situationsCount = possibleMovesCount();
         for (size_t i = 0; i < situationsCount; i++) {
             bestSituations_->push_back(generateNextSituation());
         }
 
-        std::sort(bestSituations_->begin(), bestSituations_->end(), 
-                [parEvaluateScoreFunc](const Situation &left, const Situation &right) {
-            return parEvaluateScoreFunc(left) < parEvaluateScoreFunc(right);
-        });    
+        std::ranges::sort(*bestSituations_,
+                          [parEvaluateScoreFunc](const Situation &left, const Situation &right) {
+                              return parEvaluateScoreFunc(left) < parEvaluateScoreFunc(right);
+                          });
     }
-    if (bestSituations_->size() != 0) {
+    if (!bestSituations_->empty()) {
         Situation best = (*bestSituations_)[bestSituations_->size() - 1];
         bestSituations_->pop_back();
         return best;
     }
-    return Situation(*this);
+    return {*this};
 }
 
 
 /**
  * @brief Generates all next situations.
+ *
+ * @return vector of all generated situations
 */
 std::vector<Situation> Situation::generateAllNextSituations() {
     std::vector<Situation> nextSituations = std::vector<Situation>();
     size_t situationsCount = possibleMovesCount();
     for (size_t i = 0; i < situationsCount; i++) {
         nextSituations.push_back(generateNextSituation());
-    }   
+    }
     return nextSituations;
 }
 
 /**
- * Implements equals operator for situation's comparison 
+ * @brief Equality operator – compares only the board layout (not metadata like counters).
+ *
+ * @param parOther Situation to compare with.
+ * @return true if boards are identical.
  */
-bool Situation::operator==(const Situation& other) const {
+bool Situation::operator==(const Situation &parOther) const {
     for (size_t i = 0; i < height_; i++) {
         for (size_t j = 0; j < width_; j++) {
-            if (field_[i][j] != other.field_[i][j]) {
+            if (field_[i][j] != parOther.field_[i][j]) {
                 return false;
             }
         }
     }
     return true;
 }
-

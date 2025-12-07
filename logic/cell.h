@@ -25,7 +25,7 @@ public:
      * @brief Creates a valid cell with the specified cell type.
      * @param parCellType The type of cell to create.
      */
-    Cell(EnumCellType parCellType) {
+    explicit Cell(EnumCellType parCellType) {
         cellType_ = parCellType;
         valid_ = true;
     }
@@ -33,14 +33,14 @@ public:
     /**
      * @brief Checks if the cell is valid.
      */
-    bool isValid() const {
+    [[nodiscard]] bool isValid() const {
         return valid_;
     }
 
     /**
      * @brief Gets the type of the cell.
      */
-    EnumCellType cellType() const {
+    [[nodiscard]] EnumCellType cellType() const {
         return cellType_;
     }
 
@@ -70,7 +70,7 @@ public:
     /**
      * @brief Converts a current cell enum value to its character representation.
      */
-    char toChar() const {
+    [[nodiscard]] char toChar() const {
         return toChar(cellType_);
     }
 

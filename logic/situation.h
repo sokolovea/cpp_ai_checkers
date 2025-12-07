@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include <iostream>
-#include <string>
 #include <vector>
 #include <memory>
 #include "cell.h"
@@ -99,8 +97,6 @@ private:
      */
     std::unique_ptr<std::vector<Situation>> bestSituations_;
 
-private:
-
     /**
      * @brief Decrements the count of white checkers.
      */
@@ -120,41 +116,53 @@ private:
     void setCell(Coordinate parCoordinate, EnumCellType parValue);
 
     /**
-     * @brief Limits the field size (width or height) before setting. 
+     * @brief Limits the field size (width or height) before setting.
+     *
+     * @param parSize parameter to be limited
      */
-    int64_t limitFieldSize(int64_t parSize);
+    static int64_t limitFieldSize(int64_t parSize);
 
 public:
 
     /**
-     * @brief Constructor that initializes the game field with starting positions.
+     * @brief Constructs an empty or standard initial checkers position.
+     * @param parShouldInitializeSituation If true (default), places black checkers on rows 0–2 and white on rows 5–7.
      */
-    Situation(bool parShouldInitializeSituation = true);
+    explicit Situation(bool parShouldInitializeSituation = true);
 
     /**
-     * @brief Constructor that initializes the game field with starting positions.
+     * @brief Constructs a situation from a raw field array with custom dimensions.
+     * @param parField  Object containing the initial board state.
+     * @param parWidth  Desired board width.
+     * @param parHeight Desired board height.
      */
-    Situation(EnumCellType parField[Situation::MAX_HEIGHT][Situation::MAX_WIDTH], size_t parWidth, size_t parHeight);
+    explicit Situation(EnumCellType parField[MAX_HEIGHT][MAX_WIDTH], size_t parWidth, size_t parHeight);
 
     /**
-     * @brief Copies all the fields except _bestSituations (installing to nullptr)
+     * @brief Copy constructor. Performs deep copy of the board; bestSituations_ is set to nullptr.
+     * @param parOtherSituation Situation to copy from.
      */
-    Situation(const Situation& other) noexcept;
+    Situation(const Situation& parOtherSituation) noexcept;
 
     /**
-     * @brief Copy Assignment Operator (except _bestSituations (installing to nullptr))
+     * @brief Copy assignment operator. Deep-copies the board; bestSituations_ is cleared.
+     * @param parOtherSituation Situation to copy from.
+     * @return Reference to this object.
      */
-    Situation& operator=(const Situation&) noexcept;
+    Situation& operator=(const Situation& parOtherSituation) noexcept;
 
     /**
-     * @brief Move constuctor
+     * @brief Move constructor. Transfers ownership of all data including bestSituations_.
+     * @param parOtherSituation Situation to move from.
      */
-    Situation(Situation&&) noexcept;
+    Situation(Situation&& parOtherSituation) noexcept;
 
     /**
-     * @brief Move Assignment Operator 
+     * @brief Move assignment operator.
+     * @param parOtherSituation Situation to move from.
+     * @return Reference to this object.
      */
-    Situation& operator=(Situation&&) noexcept;
+    Situation& operator=(Situation&& parOtherSituation) noexcept;
 
     /**
      * @brief Default destructor
@@ -171,15 +179,15 @@ public:
      *
      * @return EnumGameCurrentStatus The current status of the game.
      */
-    EnumGameCurrentStatus currentGameStatus() const;
+    [[nodiscard]] EnumGameCurrentStatus currentGameStatus() const;
 
     /**
      * @brief Checks if any checker of the specified type can make a move.
      *
-     * @param checkerType The type of checker to check.
+     * @param parCheckerType The type of checker to check.
      * @return true if at least one checker can move, false otherwise.
      */
-    bool canAnyCheckerMove(EnumCellType checkerType) const;
+    [[nodiscard]] bool canAnyCheckerMove(EnumCellType parCheckerType) const;
 
     /**
      * @brief Updates checker pieces to queen status when they reach the opposite end.
@@ -191,7 +199,7 @@ public:
      *
      * This counts all valid moves (captures + simple moves) for the current player.
      */
-    int64_t possibleMovesCount() const;
+    [[nodiscard]] int64_t possibleMovesCount() const;
 
     /**
      * @brief Checks if a coordinate is valid.
@@ -199,7 +207,7 @@ public:
      * @param parCoordinate The coordinate to validate.
      * @return true if the coordinate is valid, false otherwise.
      */
-    bool isCellValid(Coordinate parCoordinate) const;
+    [[nodiscard]] bool isCellValid(Coordinate parCoordinate) const;
 
     /**
      * @brief Removes a checker from the specified coordinate.
@@ -269,14 +277,14 @@ public:
      *
      * @return int64_t The initial number of black checkers.
      */
-    int64_t countWhiteInitial() const;
+    [[nodiscard]] int64_t countWhiteInitial() const;
 
     /**
      * @brief Gets the initial count of black checkers.
      *
      * @return int64_t The initial number of black checkers.
      */
-    int64_t countBlackInitial() const;
+    [[nodiscard]] int64_t countBlackInitial() const;
 
     /**
      * @brief Gets the cell content at the specified coordinate.
@@ -289,20 +297,28 @@ public:
     /**
      * @brief The current player is on white or black opposite
      */
-    bool isWhiteMove() const {
+    [[nodiscard]] bool isWhiteMove() const {
         return isWhiteMove_;
     }
 
     /**
      * @brief Generates next situation.
+     *
+     * @return Next situation (if not possible, return *this)
      */
     Situation generateNextSituation();
 
-    
+    /**
+     * @brief Applies a move if it belongs to the current player and is legal.
+     *
+     * @param parFirst  Source coordinate.
+     * @param parSecond Destination coordinate.
+     * @return true if the move was applied, false otherwise.
+     */
     bool applyMoveIfPossible(Coordinate parFirst, Coordinate parSecond);
 
     /**
-     * @brief Generates next best stituation scored by evaluate function.
+     * @brief Generates next best situation scored by evaluate function.
      * 
      * @param parEvaluateScoreFunc The evaluate function.
      */
@@ -310,13 +326,18 @@ public:
 
     /**
     * @brief Generates next best stituation scored by evaluate function.
+    *
+    * @return Vector of all successor situations.
     */
     std::vector<Situation> generateAllNextSituations();
 
     /**
-     * @brief Implements equals operator for situation's comparison 
+     * @brief Equality operator – compares only the board layout (not metadata like counters).
+     *
+     * @param parOther Situation to compare with.
+     * @return true if boards are identical.
      */
-    bool operator==(const Situation& other) const;
+    bool operator==(const Situation& parOther) const;
 
 };
 
