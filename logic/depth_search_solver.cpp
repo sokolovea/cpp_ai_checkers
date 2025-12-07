@@ -33,6 +33,7 @@ void DepthSearchSolver::depthSearchRecursive(Situation &parCurrentSituation, Sit
     int64_t movesCount = parCurrentSituation.possibleMovesCount();
     Situation nextSituation(false);
     for (int64_t i = 0; i < movesCount; i++) {
+        ++N_;
         if (parEvaluateScoreFunc == nullptr) {
             nextSituation = parCurrentSituation.generateNextSituation();
         } else {

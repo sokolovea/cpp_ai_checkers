@@ -9,4 +9,10 @@ class ISolver {
 public:
     virtual std::vector<Situation> solve(const Situation& parStart) = 0;
     virtual ~ISolver() = default;
+
+    inline static size_t N_;
+
+    static size_t getN() {
+        return N_;
+    }
 };

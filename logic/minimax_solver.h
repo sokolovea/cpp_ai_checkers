@@ -8,7 +8,6 @@
  * @brief Implementation of Minimax algorithm with optional Alpha-Beta pruning.
  */
 class MinimaxSolver final : public ISolver {
-
     /**
      * @brief Maximum depth for the search tree.
      */

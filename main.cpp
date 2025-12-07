@@ -130,6 +130,23 @@ int main() {
     std::vector<Situation> foundPath = solver->solve(*situation);
 
     int64_t currentStep = 1;
+
+    double d = 0;
+    double l = 0;
+    double n = 0;
+    double r = 0;
+
+    d += static_cast<double>(maxTreeDepth);
+    l += static_cast<double>(foundPath.size());
+    n += static_cast<double>(ISolver::getN());
+
+    static double stat_counter = 1;
+
+    std::cout << "\nSTATISTICS:" << std::endl;
+    std::cout << "Average D = " << d / stat_counter << std::endl;
+    std::cout << "Average L = " << l / stat_counter << std::endl;
+    std::cout << "Average N = " << n / stat_counter << std::endl << std::endl;
+
     EnumGameCurrentStatus gameEndStatus = situation->currentGameStatus();
     do {
         std::cout << "\nStep " << currentStep << ": "
@@ -146,6 +163,18 @@ int main() {
 
         if (currentStep % 2 == 1) {
             foundPath = solver->solve(*situation);
+
+            ++stat_counter;
+
+            d += static_cast<double>(maxTreeDepth);
+            l += static_cast<double>(foundPath.size());
+            n = static_cast<double>(ISolver::getN());
+
+            std::cout << "\nSTATISTICS:" << std::endl;
+            std::cout << "Average D = " << d / stat_counter << std::endl;
+            std::cout << "Average L = " << l / stat_counter << std::endl;
+            std::cout << "Average N = " << n / stat_counter << std::endl << std::endl;
+
         } else {
             while (situation->currentGameStatus() == EnumGameCurrentStatus::PLAYING) {
                 foundPath = consoleSolver.solve(*situation);

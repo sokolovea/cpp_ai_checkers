@@ -69,3 +69,4 @@ public:
     std::vector<Situation> solve(const Situation &parStart) override;
 };
 
+

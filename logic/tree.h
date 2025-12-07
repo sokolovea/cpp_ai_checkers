@@ -35,6 +35,14 @@ class TreeMinimax final {
     // Finds score for data_ by alpha-beta prune algorithm with optimizations (without full bush generation)
     void findMinimaxScoreAlphaBetaOptimized(bool parIsMin, int64_t parAlpha, int64_t parBeta, size_t parDepth,
                                             Situation::Target parTarget, EvaluateScore parEvaluateScore);
+    /**
+     * Count of generated nodes in tree
+     */
+    static size_t N_;
+
+    static size_t getN() {
+        return N_;
+    }
 
 public:
     /**
@@ -114,6 +122,7 @@ void TreeMinimax<T>::findMinimaxScore(bool parIsMin) {
 template<typename T>
 void TreeMinimax<T>::findMinimaxScoreAlphaBetaOptimized(bool parIsMin, int64_t parAlpha, int64_t parBeta,
                                                         size_t parDepth, Situation::Target parTarget, EvaluateScore parEvaluateScore) {
+    ++N_;
     if (parDepth == 0 || parTarget(this->data_)) {
         score_ = parEvaluateScore(this->data_);
     } else {
@@ -180,6 +189,7 @@ void TreeMinimax<T>::findMinimaxScoreAlphaBeta(bool parIsMin, int64_t parAlpha, 
 */
 template<typename T>
 void TreeMinimax<T>::generateTreeWithDepth(size_t parDepth, EvaluateScore parEvaluateScore, Situation::Target parTarget) {
+    ++N_;
     if (parDepth == 0 || parTarget(data_)) {
         score_ = parEvaluateScore(data_);
         return;
@@ -253,3 +263,5 @@ std::vector<T> TreeMinimax<T>::solveAlphaBetaOptimized(bool parIsMin, size_t par
     return path;
 }
 
+template<typename T>
+size_t TreeMinimax<T>::N_ = 0;

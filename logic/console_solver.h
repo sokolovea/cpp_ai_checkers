@@ -8,6 +8,7 @@
  */
 class ConsoleSolver final : public ISolver {
 public:
+
     /**
      * @brief Gets next situation by user input.
      * Reads move coordinates from console and applies them to the current situation.
