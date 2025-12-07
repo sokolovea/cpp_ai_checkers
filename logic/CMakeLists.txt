@@ -6,10 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
     situation.cpp
-        i_solver.h
-        minimax_solver.h
-        console_solver.h
-        method_type_enum.h
+    minimax_solver.cpp
 )
 
 set(HEADERS
@@ -17,8 +14,12 @@ set(HEADERS
     cell.h
     coordinate.h
     enum_game_current_status.h
-        depth_search_solver.h
+    depth_search_solver.h
     tree.h
+    i_solver.h
+    minimax_solver.h
+    console_solver.h
+    method_type_enum.h
 )
 
 add_library(logic ${SOURCES})

@@ -41,11 +41,7 @@ public:
      * @param parIsAlphaBeta Flag to enable Alpha-Beta pruning
      */
     explicit MinimaxSolver(size_t parMaxDepth, Target parTargetFunc, EvaluateScore parEvaluateScoreFunc = nullptr,
-                           bool parIsAlphaBeta = false) : maxDepth_(parMaxDepth),
-                                                          targetFunc_(parTargetFunc),
-                                                          evaluateScoreFunc_(parEvaluateScoreFunc),
-                                                          isAlphaBeta_(parIsAlphaBeta) {
-    }
+                           bool parIsAlphaBeta = false);
 
     /**
      * @brief Main solving method.
@@ -54,15 +50,7 @@ public:
      * @param parStart Initial game situation
      * @return Vector of situations representing the solution path
      */
-    std::vector<Situation> solve(const Situation &parStart) override {
-        if (isAlphaBeta_) {
-            Situation situation(parStart);
-            return solveMinimaxAlphaBetaOptimized(situation, targetFunc_,
-                                                  maxDepth_, evaluateScoreFunc_);
-        }
-        return solveMinimax(parStart, targetFunc_,
-                            maxDepth_, evaluateScoreFunc_);
-    }
+    std::vector<Situation> solve(const Situation &parStart) override;
 
     /**
      * @brief Implements classic Minimax algorithm.
@@ -77,14 +65,7 @@ public:
      */
     static std::vector<Situation> solveMinimax(const Situation &parStart, Target parTarget, size_t parMaxDepth,
                                                EvaluateScore parEvaluateScoreFunc,
-                                               bool parIsAlphaBeta = false) {
-        auto *tree = new TreeMinimax{parStart};
-        bool parIsMin = false;
-        tree->generateTreeWithDepth(parMaxDepth, parEvaluateScoreFunc, parTarget);
-        auto foundPath = tree->solveMinimax(parIsMin, parIsAlphaBeta);
-        delete tree;
-        return foundPath;
-    }
+                                               bool parIsAlphaBeta = false);
 
     /**
      * @brief Implements Minimax algorithm with Alpha-Beta pruning.
@@ -98,11 +79,5 @@ public:
      */
     static std::vector<Situation> solveMinimaxAlphaBetaOptimized(Situation &parStart, Target parTarget,
                                                                  size_t parMaxDepth,
-                                                                 EvaluateScore parEvaluateScoreFunc) {
-        auto *tree = new TreeMinimax{parStart};
-        bool parIsMin = false;
-        auto foundPath = tree->solveAlphaBetaOptimized(parIsMin, parMaxDepth, parTarget, parEvaluateScoreFunc);
-        delete tree;
-        return foundPath;
-    }
+                                                                 EvaluateScore parEvaluateScoreFunc);
 };

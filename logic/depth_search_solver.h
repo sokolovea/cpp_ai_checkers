@@ -10,7 +10,6 @@
 
 #include <vector>
 #include <algorithm>
-#include "tree.h"
 #include "situation.h"
 #include "i_solver.h"
 

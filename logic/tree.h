@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <cinttypes>
 #include <algorithm>
+#include <limits>
 
 /**
  * Evaluates the score of situation and helps to find the best next step.
@@ -42,10 +42,7 @@ public:
     * @param parRoot - selected root
     * @param parParent - parent of root (if exists)
     */
-    explicit TreeMinimax(const T &parRoot, T *parParent = nullptr) :
-            data_{parRoot},
-            score_{0},
-            parent_{parParent} {}
+    explicit TreeMinimax(const T &parRoot, T *parParent = nullptr);
 
     /**
     * @brief Generates tree with selected set depth
@@ -57,7 +54,7 @@ public:
 
     /**
      * @brief Solves minimax tree and returns recommended path with situations
-     * @param parIsMin - is minimazing for this leaf (of maximazing else)
+     * @param parIsMin - is minimizing for this leaf (of maximizing else)
      * @param parIsAlphaBeta - is using alpha-beta prune optimizations
      */
     std::vector<T> solveMinimax(bool parIsMin, bool parIsAlphaBeta = false);
@@ -65,15 +62,41 @@ public:
     /**
      * @brief Solves alpha-beta prune algorithm and returns recommended path with situations
      * @param parIsMin - is minimizing for this leaf (of maximizing else)
+     * @param parDepth - max depth for tree
+     * @param parTarget - target function (win or not now)
+     * @param parEvaluateScore - evaluate situation function
      */
     std::vector<T>
     solveAlphaBetaOptimized(bool parIsMin, size_t parDepth, Target parTarget, EvaluateScore parEvaluateScore);
 
-    const T &getData() const {
-        return data_;
-    }
-
+    /**
+     * @brief Get internal data value.
+     *
+     * @return internal data value.
+     */
+    const T &getData() const;
 };
+
+/**
+* @brief Generates Tree with selected root value and it's parent
+* @param parRoot - selected root
+* @param parParent - parent of root (if exists)
+*/
+template<typename T>
+TreeMinimax<T>::TreeMinimax(const T &parRoot, T *parParent):
+    data_{parRoot},
+    score_{0},
+    parent_{parParent} {}
+
+/**
+ * @brief Get internal data value.
+ *
+ * @return internal data value.
+ */
+template<typename T>
+const T & TreeMinimax<T>::getData() const {
+    return data_;
+}
 
 template<typename T>
 void TreeMinimax<T>::findMinimaxScore(bool parIsMin) {
@@ -122,7 +145,6 @@ void TreeMinimax<T>::findMinimaxScoreAlphaBetaOptimized(bool parIsMin, int64_t p
         }
     }
 }
-
 
 template<typename T>
 void TreeMinimax<T>::findMinimaxScoreAlphaBeta(bool parIsMin, int64_t parAlpha, int64_t parBeta) {
