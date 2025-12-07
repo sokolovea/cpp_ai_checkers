@@ -134,7 +134,6 @@ int main() {
     double d = 0;
     double l = 0;
     double n = 0;
-    double r = 0;
 
     d += static_cast<double>(maxTreeDepth);
     l += static_cast<double>(foundPath.size());

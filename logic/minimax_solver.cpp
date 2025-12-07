@@ -51,6 +51,7 @@ std::vector<Situation> MinimaxSolver::solveMinimax(const Situation &parStart, Si
     auto *tree = new TreeMinimax{parStart};
     bool parIsMin = false;
     tree->generateTreeWithDepth(parMaxDepth, parEvaluateScoreFunc, parTarget);
+    N_ = TreeMinimax<Situation>::getN();
     auto foundPath = tree->solveMinimax(parIsMin, parIsAlphaBeta);
     delete tree;
     return foundPath;
@@ -71,6 +72,7 @@ std::vector<Situation> MinimaxSolver::solveMinimaxAlphaBetaOptimized(Situation &
     auto *tree = new TreeMinimax{parStart};
     bool parIsMin = false;
     auto foundPath = tree->solveAlphaBetaOptimized(parIsMin, parMaxDepth, parTarget, parEvaluateScoreFunc);
+    N_ = TreeMinimax<Situation>::getN();
     delete tree;
     return foundPath;
 }

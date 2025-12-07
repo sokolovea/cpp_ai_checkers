@@ -40,11 +40,15 @@ class TreeMinimax final {
      */
     static size_t N_;
 
+public:
+
+    /**
+     * Count of generated nodes in tree
+     */
     static size_t getN() {
         return N_;
     }
 
-public:
     /**
     * @brief Generates Tree with selected root value and it's parent
     * @param parRoot - selected root
